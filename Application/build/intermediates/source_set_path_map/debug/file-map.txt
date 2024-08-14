@@ -1,0 +1,15 @@
+com.example.android.bluetoothlegatt.Application-support-compat-28.0.0-0 C:\Users\NPL-Weng\AppData\Local\Android\Sdk\caches\transforms-3\0b22a6b07b3e498281e2fdb9d93c9c6b\transformed\support-compat-28.0.0\res
+com.example.android.bluetoothlegatt.Application-coordinatorlayout-28.0.0-1 C:\Users\NPL-Weng\AppData\Local\Android\Sdk\caches\transforms-3\568c762957e87adb25eac94f3bddea2d\transformed\coordinatorlayout-28.0.0\res
+com.example.android.bluetoothlegatt.Application-cardview-v7-28.0.0-2 C:\Users\NPL-Weng\AppData\Local\Android\Sdk\caches\transforms-3\703109fae2f389c31de7af6aa00ae2fb\transformed\cardview-v7-28.0.0\res
+com.example.android.bluetoothlegatt.Application-support-media-compat-28.0.0-3 C:\Users\NPL-Weng\AppData\Local\Android\Sdk\caches\transforms-3\a86a7444f7d83d25c50beb253e0687e6\transformed\support-media-compat-28.0.0\res
+com.example.android.bluetoothlegatt.Application-appcompat-v7-28.0.0-4 C:\Users\NPL-Weng\AppData\Local\Android\Sdk\caches\transforms-3\ea5271aff2e9b4fa4c0a0cdbc7dd64f1\transformed\appcompat-v7-28.0.0\res
+com.example.android.bluetoothlegatt.Application-pngs-5 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\build\generated\res\pngs\debug
+com.example.android.bluetoothlegatt.Application-resValues-6 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\build\generated\res\resValues\debug
+com.example.android.bluetoothlegatt.Application-rs-7 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\build\generated\res\rs\debug
+com.example.android.bluetoothlegatt.Application-mergeDebugResources-8 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\build\intermediates\incremental\debug\mergeDebugResources\merged.dir
+com.example.android.bluetoothlegatt.Application-mergeDebugResources-9 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\build\intermediates\incremental\debug\mergeDebugResources\stripped.dir
+com.example.android.bluetoothlegatt.Application-merged_res-10 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\build\intermediates\merged_res\debug
+com.example.android.bluetoothlegatt.Application-common-11 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\src\common\res
+com.example.android.bluetoothlegatt.Application-debug-12 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\src\debug\res
+com.example.android.bluetoothlegatt.Application-main-13 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\src\main\res
+com.example.android.bluetoothlegatt.Application-template-14 C:\Users\NPL-Weng\Desktop\Userfolder\JJ\Android\Application\src\template\res
