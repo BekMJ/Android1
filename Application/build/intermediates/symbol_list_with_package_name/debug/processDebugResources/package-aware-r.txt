@@ -768,6 +768,10 @@ id titleDividerNoCustom
 id title_template
 id top
 id topPanel
+id tv_co_concentration
+id tv_humidity
+id tv_pressure
+id tv_temperature
 id uniform
 id up
 id useLogo

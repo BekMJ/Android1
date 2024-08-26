@@ -44,9 +44,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * For a given BLE device, this Activity provides the user interface to connect, display data,
@@ -63,6 +66,11 @@ public class DeviceControlActivity extends Activity {
 
     private TextView mConnectionState;
     private TextView mDataField;
+    private TextView mTvTemperature;
+    private TextView mTvHumidity;
+    private TextView mTvCoConcentration;
+    private TextView mTvPressure;
+
     private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
@@ -81,7 +89,7 @@ public class DeviceControlActivity extends Activity {
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
 
-     // Code to manage Service lifecycle.
+    // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
@@ -162,7 +170,7 @@ public class DeviceControlActivity extends Activity {
                     }
                     return false;
                 }
-    };
+            };
 
     private void clearUI() {
         mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
@@ -189,6 +197,11 @@ public class DeviceControlActivity extends Activity {
         mGattServicesList.setOnChildClickListener(servicesListClickListner);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
         mDataField = (TextView) findViewById(R.id.data_value);
+
+        mTvTemperature = (TextView) findViewById(R.id.tv_temperature);
+        mTvHumidity = (TextView) findViewById(R.id.tv_humidity);
+        mTvCoConcentration = (TextView) findViewById(R.id.tv_co_concentration);
+        mTvPressure = (TextView) findViewById(R.id.tv_pressure);
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -271,8 +284,8 @@ public class DeviceControlActivity extends Activity {
     }
 
     // Demonstrates how to iterate through the supported GATT Services/Characteristics.
-    // In this sample, we populate the data structure that is bound to the ExpandableListView
-    // on the UI.
+// In this sample, we populate the data structure that is bound to the ExpandableListView
+// on the UI.
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
         String uuid = null;
@@ -283,11 +296,19 @@ public class DeviceControlActivity extends Activity {
                 = new ArrayList<ArrayList<HashMap<String, String>>>();
         mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
 
+        // Define the UUIDs of interest
+        Set<String> relevantUuids = new HashSet<>(Arrays.asList(
+                "00002a6e-0000-1000-8000-00805f9b34fb", // Temperature
+                "00002a6f-0000-1000-8000-00805f9b34fb", // Humidity
+                "00002bd0-0000-1000-8000-00805f9b34fb", // CO concentration
+                "00002a6d-0000-1000-8000-00805f9b34fb"  // Pressure
+        ));
+
         // Loops through available GATT Services.
         for (BluetoothGattService gattService : gattServices) {
             HashMap<String, String> currentServiceData = new HashMap<String, String>();
             uuid = gattService.getUuid().toString();
-            if (uuid.startsWith("0000181a")){
+            if (uuid.startsWith("0000181a")){ // Check if it's Environmental Monitoring Service
                 currentServiceData.put(
                         LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
                 currentServiceData.put(LIST_UUID, uuid);
@@ -302,23 +323,21 @@ public class DeviceControlActivity extends Activity {
 
                 // Loops through available Characteristics.
                 for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                    charas.add(gattCharacteristic);
-                    HashMap<String, String> currentCharaData = new HashMap<String, String>();
                     uuid = gattCharacteristic.getUuid().toString();
-
-                    if (uuid.startsWith("19b10001-e8f4")){
-                        Log.d(TAG,uuid);
-                        mCharacteristic = gattCharacteristic;
+                    if (relevantUuids.contains(uuid)) { // Filter to only include relevant UUIDs
+                        charas.add(gattCharacteristic);
+                        HashMap<String, String> currentCharaData = new HashMap<String, String>();
+                        currentCharaData.put(
+                                LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
+                        currentCharaData.put(LIST_UUID, uuid);
+                        gattCharacteristicGroupData.add(currentCharaData);
                     }
-                    currentCharaData.put(
-                            LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
-                    currentCharaData.put(LIST_UUID, uuid);
-                    gattCharacteristicGroupData.add(currentCharaData);
                 }
-                mGattCharacteristics.add(charas);
-                gattCharacteristicData.add(gattCharacteristicGroupData);
+                if (!charas.isEmpty()) { // Only add if there are relevant characteristics
+                    mGattCharacteristics.add(charas);
+                    gattCharacteristicData.add(gattCharacteristicGroupData);
+                }
             }
-
         }
 
         SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(
@@ -334,6 +353,7 @@ public class DeviceControlActivity extends Activity {
         );
         mGattServicesList.setAdapter(gattServiceAdapter);
     }
+
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
@@ -385,7 +405,7 @@ public class DeviceControlActivity extends Activity {
         }
         else {
 
-                writeCustomFile(filename);
+            writeCustomFile(filename);
 
         }
 

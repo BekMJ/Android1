@@ -32,6 +32,10 @@ public class SampleGattAttributes {
         attributes.put("0000180d-0000-1000-8000-00805f9b34fb", "Heart Rate Service");
         attributes.put("0000180a-0000-1000-8000-00805f9b34fb", "Device Information Service");
         attributes.put("0000181a-0000-1000-8000-00805f9b34fb", "Environmental Monitoring Service");
+        attributes.put("00002a6e-0000-1000-8000-00805f9b34fb", "Temperature");
+        attributes.put("00002a6f-0000-1000-8000-00805f9b34fb", "Humidity");
+        attributes.put("00002bd0-0000-1000-8000-00805f9b34fb", "CO concentration");
+        attributes.put("00002a6d-0000-1000-8000-00805f9b34fb", "Pressure");
         // Sample Characteristics.
         attributes.put(HEART_RATE_MEASUREMENT, "Heart Rate Measurement");
         attributes.put("00002a29-0000-1000-8000-00805f9b34fb", "Manufacturer Name String");

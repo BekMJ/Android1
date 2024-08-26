@@ -123,35 +123,26 @@ public class BluetoothLeService extends Service {
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
 
-        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
-        // carried out as per profile specifications:
-        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-            int flag = characteristic.getProperties();
-            int format = -1;
-            if ((flag & 0x01) != 0) {
-                format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                Log.d(TAG, "Heart rate format UINT16.");
+        final byte[] data = characteristic.getValue();
+        if (data != null && data.length > 0) {
+            // Check if this characteristic is the CO concentration characteristic
+            if (characteristic.getUuid().equals(UUID.fromString("19b10001-e8f4-537e-4f6c-d104768a1214"))) {
+                if (data.length == 2) {
+                    int coConcentration = ((data[1] & 0xFF) << 8) | (data[0] & 0xFF);
+                    intent.putExtra(EXTRA_DATA, coConcentration);
+                }
             } else {
-                format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                Log.d(TAG, "Heart rate format UINT8.");
-            }
-            final int heartRate = characteristic.getIntValue(format, 1);
-            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0) {
+                // For all other profiles, write the data formatted in HEX
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 for(byte byteChar : data)
-                    //stringBuilder.append(String.format("%02X ", byteChar));
-                    stringBuilder.append(String.format("%02X ", 48));
+                    stringBuilder.append(String.format("%02X ", byteChar));
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
             }
         }
         sendBroadcast(intent);
     }
+
+
 
     public class LocalBinder extends Binder {
         BluetoothLeService getService() {
