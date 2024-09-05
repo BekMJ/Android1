@@ -62,6 +62,8 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
+    public final static String EXTRA_DATA_TYPE =
+            "com.example.bluetooth.le.EXTRA_DATA_TYPE";
 
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
@@ -122,16 +124,25 @@ public class BluetoothLeService extends Service {
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
-
+        intent.putExtra(BluetoothLeService.EXTRA_DATA_TYPE, characteristic.getUuid().toString());
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
             // Check if this characteristic is the CO concentration characteristic
-            if (characteristic.getUuid().equals(UUID.fromString("19b10001-e8f4-537e-4f6c-d104768a1214"))) {
+            if (characteristic.getUuid().equals(UUID.fromString("00002bd0-0000-1000-8000-00805f9b34fb"))) {
                 if (data.length == 2) {
                     int coConcentration = ((data[1] & 0xFF) << 8) | (data[0] & 0xFF);
                     intent.putExtra(EXTRA_DATA, coConcentration);
                 }
-            } else {
+
+            }
+            else  if (characteristic.getUuid().equals(UUID.fromString("19b10001-e8f4-537e-4f6c-d104768a1214")))
+            {
+                if (data.length == 2) {
+                    int coConcentration = ((data[1] & 0xFF) << 8) | (data[0] & 0xFF);
+                    intent.putExtra(EXTRA_DATA, coConcentration);
+                }
+            }
+            else {
                 // For all other profiles, write the data formatted in HEX
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
                 for(byte byteChar : data)

@@ -132,10 +132,30 @@ public class DeviceControlActivity extends Activity {
                 // Show all the supported services and characteristics on the user interface.
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                String dataType = intent.getStringExtra(BluetoothLeService.EXTRA_DATA_TYPE);
+                String dataValue = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
+                updateDataViews(dataType, dataValue);
+
             }
         }
     };
+
+    private void updateDataViews(String dataType, String dataValue) {
+        switch (dataType) {
+            case "00002bd0-0000-1000-8000-00805f9b34fb":
+                mTvCoConcentration.setText(dataValue);
+                break;
+            case "00002a6e-0000-1000-8000-00805f9b34fb":
+                mTvTemperature.setText(dataValue);
+                break;
+            case "00002a6f-0000-1000-8000-00805f9b34fb":
+                mTvHumidity.setText(dataValue);
+                break;
+            case "00002a6d-0000-1000-8000-00805f9b34fb":
+                mTvPressure.setText(dataValue);
+                break;
+        }
+    }
 
     // If a given GATT characteristic is selected, check for supported features.  This sample
     // demonstrates 'Read' and 'Notify' features.  See
@@ -196,7 +216,7 @@ public class DeviceControlActivity extends Activity {
         mGattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
         mGattServicesList.setOnChildClickListener(servicesListClickListner);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
-        mDataField = (TextView) findViewById(R.id.data_value);
+
 
         mTvTemperature = (TextView) findViewById(R.id.tv_temperature);
         mTvHumidity = (TextView) findViewById(R.id.tv_humidity);
@@ -301,7 +321,7 @@ public class DeviceControlActivity extends Activity {
                 "00002a6e-0000-1000-8000-00805f9b34fb", // Temperature
                 "00002a6f-0000-1000-8000-00805f9b34fb", // Humidity
                 "00002bd0-0000-1000-8000-00805f9b34fb", // CO concentration
-                "00002a6d-0000-1000-8000-00805f9b34fb"  // Pressure
+                "00002a6d-0000-1000-8000-00805f9b34fb" // Pressure
         ));
 
         // Loops through available GATT Services.
