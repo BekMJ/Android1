@@ -672,7 +672,6 @@ id contentPanel
 id custom
 id customPanel
 id data_timer
-id data_value
 id decor_content_parent
 id default_activity_button
 id device_address

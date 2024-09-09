@@ -145,6 +145,9 @@ public class DeviceControlActivity extends Activity {
             case "00002bd0-0000-1000-8000-00805f9b34fb":
                 mTvCoConcentration.setText(dataValue);
                 break;
+            case "19b10001-e8f4-537e-4f6c-d104768a1214":
+                mTvCoConcentration.setText(dataValue);
+                break;
             case "00002a6e-0000-1000-8000-00805f9b34fb":
                 mTvTemperature.setText(dataValue);
                 break;
@@ -328,7 +331,7 @@ public class DeviceControlActivity extends Activity {
         for (BluetoothGattService gattService : gattServices) {
             HashMap<String, String> currentServiceData = new HashMap<String, String>();
             uuid = gattService.getUuid().toString();
-            if (uuid.startsWith("0000181a")){ // Check if it's Environmental Monitoring Service
+            if (uuid.startsWith("0000181a") || uuid.equals("19b10001-e8f4-537e-4f6c-d104768a1214")){ // Check if it's Environmental Monitoring Service
                 currentServiceData.put(
                         LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
                 currentServiceData.put(LIST_UUID, uuid);

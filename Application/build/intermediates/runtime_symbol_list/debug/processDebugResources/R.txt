@@ -671,7 +671,6 @@ int id contentPanel 0x7f08002f
 int id custom 0x7f080030
 int id customPanel 0x7f080031
 int id data_timer 0x7f080032
-int id data_value 0x7f080033
 int id decor_content_parent 0x7f080034
 int id default_activity_button 0x7f080035
 int id device_address 0x7f080036
