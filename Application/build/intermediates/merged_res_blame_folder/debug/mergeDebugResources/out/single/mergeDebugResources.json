@@ -20,12 +20,16 @@
         "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-12:\\drawable-xhdpi\\ic_launcher.png"
     },
     {
+        "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-9:\\drawable-hdpi_tile.9.png.flat",
+        "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-12:\\drawable-hdpi\\tile.9.png"
+    },
+    {
         "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-9:\\xml_pref_general.xml.flat",
         "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-12:\\xml\\pref_general.xml"
     },
     {
-        "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-9:\\drawable-hdpi_tile.9.png.flat",
-        "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-12:\\drawable-hdpi\\tile.9.png"
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-9:/layout_child_item.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-12:/layout/child_item.xml"
     },
     {
         "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-9:\\menu_main.xml.flat",

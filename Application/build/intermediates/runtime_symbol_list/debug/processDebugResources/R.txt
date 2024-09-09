@@ -660,6 +660,8 @@ int id cancel_action 0x7f080024
 int id center 0x7f080025
 int id center_horizontal 0x7f080026
 int id center_vertical 0x7f080027
+int id characteristic_name 0x7f08009c
+int id characteristic_value 0x7f08009d
 int id checkbox 0x7f080028
 int id chronometer 0x7f080029
 int id clip_horizontal 0x7f08002a
@@ -766,10 +768,6 @@ int id titleDividerNoCustom 0x7f08008f
 int id title_template 0x7f080090
 int id top 0x7f080091
 int id topPanel 0x7f080092
-int id tv_co_concentration 0x7f080098
-int id tv_humidity 0x7f080099
-int id tv_pressure 0x7f08009a
-int id tv_temperature 0x7f08009b
 int id uniform 0x7f080093
 int id up 0x7f080094
 int id useLogo 0x7f080095
@@ -810,6 +808,7 @@ int layout abc_select_dialog_material 0x7f0a001a
 int layout abc_tooltip 0x7f0a001b
 int layout actionbar_indeterminate_progress 0x7f0a001c
 int layout activity_settings 0x7f0a001d
+int layout child_item 0x7f0a0033
 int layout gatt_services_characteristics 0x7f0a001e
 int layout listitem_device 0x7f0a001f
 int layout notification_action 0x7f0a0020

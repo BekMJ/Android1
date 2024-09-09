@@ -122,43 +122,47 @@ public class DeviceControlActivity extends Activity {
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
                 clearUI();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Show all the supported services and characteristics on the user interface.
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 String dataType = intent.getStringExtra(BluetoothLeService.EXTRA_DATA_TYPE);
                 String dataValue = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
-                updateDataViews(dataType, dataValue);
 
+                // Update the ExpandableListView with the data
+                updateCharacteristicValue(dataType, dataValue);
             }
         }
     };
 
-    private void updateDataViews(String dataType, String dataValue) {
-        switch (dataType) {
-            case "00002bd0-0000-1000-8000-00805f9b34fb":
-                mTvCoConcentration.setText(dataValue);
-                break;
-            case "19b10001-e8f4-537e-4f6c-d104768a1214":
-                mTvCoConcentration.setText(dataValue);
-                break;
-            case "00002a6e-0000-1000-8000-00805f9b34fb":
-                mTvTemperature.setText(dataValue);
-                break;
-            case "00002a6f-0000-1000-8000-00805f9b34fb":
-                mTvHumidity.setText(dataValue);
-                break;
-            case "00002a6d-0000-1000-8000-00805f9b34fb":
-                mTvPressure.setText(dataValue);
-                break;
+    private void updateCharacteristicValue(String dataType, String dataValue) {
+        // Loop through the characteristics and update the corresponding value
+        for (int i = 0; i < mGattCharacteristics.size(); i++) {
+            ArrayList<BluetoothGattCharacteristic> charas = mGattCharacteristics.get(i);
+            for (BluetoothGattCharacteristic characteristic : charas) {
+                if (characteristic.getUuid().toString().equals(dataType)) {
+                    // Get the child item in the ExpandableListView
+                    HashMap<String, String> childItem = (HashMap<String, String>)
+                            ((SimpleExpandableListAdapter) mGattServicesList.getExpandableListAdapter())
+                                    .getChild(i, charas.indexOf(characteristic));
+
+                    // Update the child item's value with the new data
+                    if (childItem != null) {
+                        childItem.put("VALUE", dataValue);
+                    }
+
+                    // Notify the adapter of the change
+                    ((SimpleExpandableListAdapter) mGattServicesList.getExpandableListAdapter()).notifyDataSetChanged();
+                    break;
+                }
+            }
         }
     }
+
+
 
     // If a given GATT characteristic is selected, check for supported features.  This sample
     // demonstrates 'Read' and 'Notify' features.  See
@@ -221,10 +225,7 @@ public class DeviceControlActivity extends Activity {
         mConnectionState = (TextView) findViewById(R.id.connection_state);
 
 
-        mTvTemperature = (TextView) findViewById(R.id.tv_temperature);
-        mTvHumidity = (TextView) findViewById(R.id.tv_humidity);
-        mTvCoConcentration = (TextView) findViewById(R.id.tv_co_concentration);
-        mTvPressure = (TextView) findViewById(R.id.tv_pressure);
+
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -311,52 +312,52 @@ public class DeviceControlActivity extends Activity {
 // on the UI.
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
-        String uuid = null;
+
         String unknownServiceString = getResources().getString(R.string.unknown_service);
         String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
-        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
-        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData
-                = new ArrayList<ArrayList<HashMap<String, String>>>();
-        mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
+        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>();
+        mGattCharacteristics = new ArrayList<>();
 
         // Define the UUIDs of interest
         Set<String> relevantUuids = new HashSet<>(Arrays.asList(
                 "00002a6e-0000-1000-8000-00805f9b34fb", // Temperature
                 "00002a6f-0000-1000-8000-00805f9b34fb", // Humidity
                 "00002bd0-0000-1000-8000-00805f9b34fb", // CO concentration
-                "00002a6d-0000-1000-8000-00805f9b34fb" // Pressure
+                "00002a6d-0000-1000-8000-00805f9b34fb"  // Pressure
         ));
 
         // Loops through available GATT Services.
         for (BluetoothGattService gattService : gattServices) {
-            HashMap<String, String> currentServiceData = new HashMap<String, String>();
-            uuid = gattService.getUuid().toString();
-            if (uuid.startsWith("0000181a") || uuid.equals("19b10001-e8f4-537e-4f6c-d104768a1214")){ // Check if it's Environmental Monitoring Service
-                currentServiceData.put(
-                        LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
+            HashMap<String, String> currentServiceData = new HashMap<>();
+            String uuid = gattService.getUuid().toString();
+            if (uuid.startsWith("0000181a") || uuid.equals("19b10001-e8f4-537e-4f6c-d104768a1214")) {
+                currentServiceData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
                 currentServiceData.put(LIST_UUID, uuid);
                 gattServiceData.add(currentServiceData);
 
-                ArrayList<HashMap<String, String>> gattCharacteristicGroupData =
-                        new ArrayList<HashMap<String, String>>();
-                List<BluetoothGattCharacteristic> gattCharacteristics =
-                        gattService.getCharacteristics();
-                ArrayList<BluetoothGattCharacteristic> charas =
-                        new ArrayList<BluetoothGattCharacteristic>();
+                ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ArrayList<>();
+                List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+                ArrayList<BluetoothGattCharacteristic> charas = new ArrayList<>();
 
                 // Loops through available Characteristics.
                 for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
                     uuid = gattCharacteristic.getUuid().toString();
-                    if (relevantUuids.contains(uuid)) { // Filter to only include relevant UUIDs
+                    if (relevantUuids.contains(uuid)) {
                         charas.add(gattCharacteristic);
-                        HashMap<String, String> currentCharaData = new HashMap<String, String>();
-                        currentCharaData.put(
-                                LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
+
+                        HashMap<String, String> currentCharaData = new HashMap<>();
+                        currentCharaData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
                         currentCharaData.put(LIST_UUID, uuid);
+
+                        // Add a placeholder for characteristic value (will be updated later)
+                        currentCharaData.put("VALUE", "N/A");
+
                         gattCharacteristicGroupData.add(currentCharaData);
                     }
                 }
-                if (!charas.isEmpty()) { // Only add if there are relevant characteristics
+
+                if (!charas.isEmpty()) {
                     mGattCharacteristics.add(charas);
                     gattCharacteristicData.add(gattCharacteristicGroupData);
                 }
@@ -367,15 +368,16 @@ public class DeviceControlActivity extends Activity {
                 this,
                 gattServiceData,
                 android.R.layout.simple_expandable_list_item_2,
-                new String[] {LIST_NAME, LIST_UUID},
+                new String[] { LIST_NAME, LIST_UUID },
                 new int[] { android.R.id.text1, android.R.id.text2 },
                 gattCharacteristicData,
-                android.R.layout.simple_expandable_list_item_2,
-                new String[] {LIST_NAME, LIST_UUID},
-                new int[] { android.R.id.text1, android.R.id.text2 }
+                R.layout.child_item, // Use custom child layout
+                new String[] { LIST_NAME, "VALUE" }, // Display name and value
+                new int[] { R.id.characteristic_name, R.id.characteristic_value } // Bind data
         );
         mGattServicesList.setAdapter(gattServiceAdapter);
     }
+
 
 
     private static IntentFilter makeGattUpdateIntentFilter() {

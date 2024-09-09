@@ -68,6 +68,23 @@ public class BluetoothLeService extends Service {
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
 
+    public final static UUID UUID_GAS_CONCENTRATION_CO =
+            UUID.fromString(SampleGattAttributes.GAS_CONCENTRATION_CO);
+
+    public final static UUID UUID_TEMPERATURE =
+            UUID.fromString(SampleGattAttributes.TEMPERATURE);
+
+    public final static UUID UUID_CO =
+            UUID.fromString(SampleGattAttributes.CO);
+
+    public final static UUID UUID_PRESSURE =
+            UUID.fromString(SampleGattAttributes.PRESSURE);
+
+    public final static UUID UUID_HUMIDITY =
+            UUID.fromString(SampleGattAttributes.HUMIDITY);
+
+
+
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
@@ -294,7 +311,12 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         // This is specific to Heart Rate Measurement.
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+        if (UUID_GAS_CONCENTRATION_CO.equals(characteristic.getUuid())
+            || UUID_TEMPERATURE.equals(characteristic.getUuid())
+                || UUID_CO.equals(characteristic.getUuid())
+                || UUID_HUMIDITY.equals(characteristic.getUuid())
+                || UUID_PRESSURE.equals(characteristic.getUuid())
+        ) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);

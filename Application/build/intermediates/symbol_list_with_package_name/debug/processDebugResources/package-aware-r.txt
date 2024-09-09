@@ -661,6 +661,8 @@ id cancel_action
 id center
 id center_horizontal
 id center_vertical
+id characteristic_name
+id characteristic_value
 id checkbox
 id chronometer
 id clip_horizontal
@@ -767,10 +769,6 @@ id titleDividerNoCustom
 id title_template
 id top
 id topPanel
-id tv_co_concentration
-id tv_humidity
-id tv_pressure
-id tv_temperature
 id uniform
 id up
 id useLogo
@@ -811,6 +809,7 @@ layout abc_select_dialog_material
 layout abc_tooltip
 layout actionbar_indeterminate_progress
 layout activity_settings
+layout child_item
 layout gatt_services_characteristics
 layout listitem_device
 layout notification_action
