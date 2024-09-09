@@ -27,7 +27,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
@@ -37,15 +36,8 @@ import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,14 +54,10 @@ public class DeviceControlActivity extends Activity {
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-    private static final String CUSTOM_FILE_NAME = "history_file.txt";
+
 
     private TextView mConnectionState;
-    private TextView mDataField;
-    private TextView mTvTemperature;
-    private TextView mTvHumidity;
-    private TextView mTvCoConcentration;
-    private TextView mTvPressure;
+
 
     private String mDeviceName;
     private String mDeviceAddress;
@@ -122,9 +110,11 @@ public class DeviceControlActivity extends Activity {
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 updateConnectionState(R.string.connected);
+                invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 updateConnectionState(R.string.disconnected);
+                invalidateOptionsMenu(); // Force the menu to update
                 clearUI();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
@@ -168,7 +158,7 @@ public class DeviceControlActivity extends Activity {
     // demonstrates 'Read' and 'Notify' features.  See
     // http://d.android.com/reference/android/bluetooth/BluetoothGatt.html for the complete
     // list of supported characteristic features.
-    private final ExpandableListView.OnChildClickListener servicesListClickListner =
+    private final ExpandableListView.OnChildClickListener servicesListClickListener =
             new ExpandableListView.OnChildClickListener() {
                 @Override
                 public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
@@ -177,31 +167,27 @@ public class DeviceControlActivity extends Activity {
                         final BluetoothGattCharacteristic characteristic =
                                 mGattCharacteristics.get(groupPosition).get(childPosition);
                         final int charaProp = characteristic.getProperties();
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                            // If there is an active notification on a characteristic, clear
-                            // it first so it doesn't update the data field on the user interface.
-                            if (mNotifyCharacteristic != null) {
-                                mBluetoothLeService.setCharacteristicNotification(
-                                        mNotifyCharacteristic, false);
-                                mNotifyCharacteristic = null;
-                            }
+
+                        // If the characteristic has the READ property, perform a read operation.
+                        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
                             mBluetoothLeService.readCharacteristic(characteristic);
-                            mCharacteristic = characteristic;
                         }
-                        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                            mNotifyCharacteristic = characteristic;
-                            mBluetoothLeService.setCharacteristicNotification(
-                                    characteristic, true);
+
+                        // If the characteristic has the NOTIFY property, enable notifications.
+                        if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                            mBluetoothLeService.setCharacteristicNotification(characteristic, true);
                         }
+
                         return true;
                     }
                     return false;
                 }
             };
 
+
     private void clearUI() {
         mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
-        mDataField.setText(R.string.no_data);
+
     }
 
     @Override
@@ -215,17 +201,10 @@ public class DeviceControlActivity extends Activity {
 
         // Sets up UI references.
         //((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
-        try {
-            ((TextView) findViewById(R.id.device_address)).setText(readCustomFile(CUSTOM_FILE_NAME));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         mGattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
-        mGattServicesList.setOnChildClickListener(servicesListClickListner);
+        mGattServicesList.setOnChildClickListener(servicesListClickListener);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
-
-
-
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -270,23 +249,24 @@ public class DeviceControlActivity extends Activity {
     }
 
     @Override
+
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_connect:
-                mBluetoothLeService.connect(mDeviceAddress);
-                return true;
-            case R.id.menu_disconnect:
-                mBluetoothLeService.disconnect();
-                return true;
-            case R.id.menu_timer:
-                startTimer();
-                return true;
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        int id = item.getItemId();
+
+        if (id == R.id.menu_connect) {
+            mBluetoothLeService.connect(mDeviceAddress);
+            return true;
+        } else if (id == R.id.menu_disconnect) {
+            mBluetoothLeService.disconnect();
+            return true;
+        } else if (id == android.R.id.home) {
+            onBackPressed();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
+
 
     private void updateConnectionState(final int resourceId) {
         runOnUiThread(new Runnable() {
@@ -297,15 +277,7 @@ public class DeviceControlActivity extends Activity {
         });
     }
 
-    private void displayData(String data) {
-        if (data != null) {
-            mDataField.setText(data);
-            //mTrendData[mTimeSeconds] = Integer.parseInt(data);
-            mTrendData[0] = mTimeSeconds;
-            mTrendData[mTimeSeconds] = data.length();
-            mTrendData[mTimeSeconds] = Integer.valueOf(data.charAt(0));
-        }
-    }
+
 
     // Demonstrates how to iterate through the supported GATT Services/Characteristics.
 // In this sample, we populate the data structure that is bound to the ExpandableListView
@@ -387,83 +359,5 @@ public class DeviceControlActivity extends Activity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
-    }
-
-    //start timer function
-    private void startTimer() {
-        cTimer = new CountDownTimer(15000, 1000) {
-            public void onTick(long millisUntilFinished) {
-
-                mTimeSeconds = (int) (millisUntilFinished / 1000);
-                ((TextView) findViewById(R.id.data_timer)).setText(mTimeSeconds + " seconds");
-                //BluetoothGattService mCustomService = new BluetoothGattService(UUID.fromString("0000181A-0000-1000-8000-00805f9b34fb"),0);
-                //final BluetoothGattCharacteristic characteristic = mCustomService.getCharacteristic(UUID.fromString("19B10001-E8F4-537E-4F6C-D104768A1214"));
-                //BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(UUID.fromString("19B10001-E8F4-537E-4F6C-D104768A1214"),2,1);
-
-                mBluetoothLeService.readCharacteristic(mCharacteristic);
-            }
-            public void onFinish() {
-                ((TextView) findViewById(R.id.data_timer)).setText("Test Completed");
-
-                mDataField.setText("Max = " + mTrendData[0] + "," + mTrendData[1] + "," + mTrendData[2] + mTrendData[3]);
-                try{
-                    writeCustomFile(CUSTOM_FILE_NAME);
-                }
-                catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-        };
-        mBluetoothLeService.writeCharacteristic(mCharacteristic);
-        cTimer.start();
-    }
-
-    public String readCustomFile (String filename) throws IOException {
-        String output = "";
-        File file = new File(this.getFilesDir(), filename);
-        if (file.exists()) {
-            byte[] bytes = new byte[(int) file.length()];
-            FileInputStream fis = this.openFileInput(filename);
-            fis.read(bytes);
-            fis.close();
-            output = new String(bytes);
-        }
-        else {
-
-            writeCustomFile(filename);
-
-        }
-
-        return output;
-    }
-
-    public void resetCustomFile (String filename) throws IOException {
-
-        writeCustomFile(filename);
-    }
-
-    // Save the current commands as the custom file
-    public void writeCustomFile (String fileName) throws IOException {
-        FileOutputStream fos = this.openFileOutput(fileName, Context.MODE_PRIVATE);
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fileText = timeStamp + mTrendData[0] + "," + mTrendData[1] + "," + mTrendData[2] + mTrendData[3];
-
-        fos.write(fileText.getBytes());
-        fos.close();
-
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
-        try {
-            FileOutputStream fout = new FileOutputStream(file);
-            fout.write(fileText.getBytes());
-
-            fout.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 }

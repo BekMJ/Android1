@@ -7,10 +7,10 @@
     <!-- Characteristic Name -->
     <TextView
         android:id="@+id/characteristic_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:text="Characteristic Name"
+        android:text="@string/characteristic_name"
         android:layout_weight="1"/>
 
     <!-- Characteristic Value -->
@@ -19,5 +19,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:text="Characteristic Value" />
+        android:text="@string/characteristic_value" />
 </LinearLayout>

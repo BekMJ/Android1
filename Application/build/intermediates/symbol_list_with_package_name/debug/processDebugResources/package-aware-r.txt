@@ -673,7 +673,6 @@ id content
 id contentPanel
 id custom
 id customPanel
-id data_timer
 id decor_content_parent
 id default_activity_button
 id device_address
@@ -709,7 +708,6 @@ id menu_disconnect
 id menu_refresh
 id menu_scan
 id menu_stop
-id menu_timer
 id message
 id middle
 id multiply
@@ -874,6 +872,8 @@ string abc_shareactionprovider_share_with_application
 string abc_toolbar_collapse_description
 string app_name
 string ble_not_supported
+string characteristic_name
+string characteristic_value
 string connected
 string disconnected
 string error_bluetooth_not_supported
@@ -904,6 +904,7 @@ string pref_view_dpad
 string pref_view_help
 string pref_view_log
 string pref_view_send
+string refresh
 string search_menu_title
 string status_bar_notification_info_overflow
 string title_devices

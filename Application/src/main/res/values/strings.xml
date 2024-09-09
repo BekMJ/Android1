@@ -59,6 +59,9 @@
     <string name="pref_log_time">Include time in log</string>
 
     <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string name="characteristic_name">Characteristic Name</string>
+    <string name="characteristic_value">Characteristic Value</string>
+    <string name="refresh">Refresh</string>
     <string-array name="pref_sync_frequency_titles">
         <item>15 minutes</item>
         <item>30 minutes</item>

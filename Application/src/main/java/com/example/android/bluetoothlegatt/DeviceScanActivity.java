@@ -112,22 +112,20 @@ public class DeviceScanActivity extends ListActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_scan:
-                mLeDeviceListAdapter.clear();
-                scanLeDevice(true);
-                break;
-            case R.id.menu_stop:
-                scanLeDevice(false);
-                break;
-            case R.id.menu_timer:
-                //startActivity(new Intent(this, SettingsActivity.class));
-                //connectftp();
-                FTPConnectionTest();
-                break;
+        int id = item.getItemId();
+
+        if (id == R.id.menu_scan) {
+            mLeDeviceListAdapter.clear();
+            scanLeDevice(true);
+            return true;
+        } else if (id == R.id.menu_stop) {
+            scanLeDevice(false);
+            return true;
         }
-        return true;
+
+        return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     protected void onResume() {

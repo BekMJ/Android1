@@ -672,7 +672,6 @@ int id content 0x7f08002e
 int id contentPanel 0x7f08002f
 int id custom 0x7f080030
 int id customPanel 0x7f080031
-int id data_timer 0x7f080032
 int id decor_content_parent 0x7f080034
 int id default_activity_button 0x7f080035
 int id device_address 0x7f080036
@@ -708,7 +707,6 @@ int id menu_disconnect 0x7f080053
 int id menu_refresh 0x7f080054
 int id menu_scan 0x7f080055
 int id menu_stop 0x7f080056
-int id menu_timer 0x7f080057
 int id message 0x7f080058
 int id middle 0x7f080059
 int id multiply 0x7f08005a
@@ -873,6 +871,8 @@ int string abc_shareactionprovider_share_with_application 0x7f0c0025
 int string abc_toolbar_collapse_description 0x7f0c0026
 int string app_name 0x7f0c0027
 int string ble_not_supported 0x7f0c0028
+int string characteristic_name 0x7f0c004d
+int string characteristic_value 0x7f0c004e
 int string connected 0x7f0c0029
 int string disconnected 0x7f0c002a
 int string error_bluetooth_not_supported 0x7f0c002b
@@ -903,6 +903,7 @@ int string pref_view_dpad 0x7f0c0043
 int string pref_view_help 0x7f0c0044
 int string pref_view_log 0x7f0c0045
 int string pref_view_send 0x7f0c0046
+int string refresh 0x7f0c004f
 int string search_menu_title 0x7f0c0047
 int string status_bar_notification_info_overflow 0x7f0c0048
 int string title_devices 0x7f0c0049

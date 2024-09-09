@@ -302,42 +302,32 @@ public class BluetoothLeService extends Service {
      * @param characteristic Characteristic to act on.
      * @param enabled If true, enable notification.  False otherwise.
      */
-    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
-                                              boolean enabled) {
+    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        // This is specific to Heart Rate Measurement.
-        if (UUID_GAS_CONCENTRATION_CO.equals(characteristic.getUuid())
-            || UUID_TEMPERATURE.equals(characteristic.getUuid())
-                || UUID_CO.equals(characteristic.getUuid())
-                || UUID_HUMIDITY.equals(characteristic.getUuid())
-                || UUID_PRESSURE.equals(characteristic.getUuid())
-        ) {
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mBluetoothGatt.writeDescriptor(descriptor);
+        // This block is specific to enabling notifications.
+        if (enabled) {
+            if (UUID_GAS_CONCENTRATION_CO.equals(characteristic.getUuid())
+                    || UUID_TEMPERATURE.equals(characteristic.getUuid())
+                    || UUID_CO.equals(characteristic.getUuid())
+                    || UUID_HUMIDITY.equals(characteristic.getUuid())
+                    || UUID_PRESSURE.equals(characteristic.getUuid())
+            ) {
+                BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                        UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+                if (descriptor != null) {
+                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                    mBluetoothGatt.writeDescriptor(descriptor);
+                }
+            }
         }
     }
 
-    /**
-     * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
-     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
-     * callback.
-     *
-     * @param characteristic The characteristic to read from.
-     */
-    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-        mBluetoothGatt.writeCharacteristic(characteristic);
-    }
+
 
     /**
      * Retrieves a list of supported GATT services on the connected device. This should be
