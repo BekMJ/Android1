@@ -83,8 +83,6 @@ public class DeviceControlActivity extends Activity {
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
 
-    public final static UUID UUID_GAS_CONCENTRATION_CO =
-            UUID.fromString(SampleGattAttributes.GAS_CONCENTRATION_CO);
 
     public final static UUID UUID_TEMPERATURE =
             UUID.fromString(SampleGattAttributes.TEMPERATURE);

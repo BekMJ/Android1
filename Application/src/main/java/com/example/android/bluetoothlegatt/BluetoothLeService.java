@@ -68,8 +68,6 @@ public class BluetoothLeService extends Service {
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
 
-    public final static UUID UUID_GAS_CONCENTRATION_CO =
-            UUID.fromString(SampleGattAttributes.GAS_CONCENTRATION_CO);
 
     public final static UUID UUID_TEMPERATURE =
             UUID.fromString(SampleGattAttributes.TEMPERATURE);
@@ -138,32 +136,68 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
-    private void broadcastUpdate(final String action,
-                                 final BluetoothGattCharacteristic characteristic) {
+
+    private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
         intent.putExtra(BluetoothLeService.EXTRA_DATA_TYPE, characteristic.getUuid().toString());
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
-            // Check if this characteristic is the CO concentration characteristic
-            if (characteristic.getUuid().equals(UUID.fromString("19b10001-e8f4-537e-4f6c-d104768a1214"))
-                    ) {
-                if (data.length == 2) {
-                    int coConcentration = ((data[1] & 0xFF) << 8) | (data[0] & 0xFF);
-                    intent.putExtra(EXTRA_DATA, coConcentration);
-                }
-
-            }
-
-            else {
-                // For all other profiles, write the data formatted in HEX
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+            if (UUID_TEMPERATURE.equals(characteristic.getUuid())) {
+                float temperature = convertTemperature(data);
+                intent.putExtra(EXTRA_DATA, String.format("%.2f°C", temperature));
+            } else if (UUID_HUMIDITY.equals(characteristic.getUuid())) {
+                float humidity = convertHumidity(data);
+                intent.putExtra(EXTRA_DATA, String.format("%.2f%%", humidity));
+            } else if (UUID_PRESSURE.equals(characteristic.getUuid())) {
+                float pressure = convertPressure(data);
+                intent.putExtra(EXTRA_DATA, String.format("%.1f Pa", pressure));
+            } else if (UUID_CO.equals(characteristic.getUuid())) {
+                int co = convertCOConcentration(data);
+                intent.putExtra(EXTRA_DATA, co + " ppm");
             }
         }
         sendBroadcast(intent);
     }
+
+
+    public float convertTemperature(byte[] rawData) {
+        // Ensure there are at least 2 bytes of data
+        if (rawData.length < 2) return 0;
+
+        // Adjust the byte order by reversing the indices used
+        int rawTemperature = ((rawData[1] & 0xFF) << 8) | (rawData[0] & 0xFF);
+
+        // Example conversion logic, adapted based on calibration details
+        return rawTemperature /100.0f; // Example scaling and offset
+    }
+
+
+    public float convertHumidity(byte[] rawData) {
+        // Combine the bytes into one value
+        int rawHumidity = ((rawData[1] & 0xFF) << 8) | (rawData[0] & 0xFF);
+
+        // Convert and adjust to percentage
+        return rawHumidity / 100.0f;  // Adjusted factor based on your input
+    }
+
+    public float convertPressure(byte[] rawData) {
+        // Combine the bytes into one value assuming they are little-endian
+        long rawPressure = ((long) (rawData[3] & 0xFF) << 24) |
+                ((long) (rawData[2] & 0xFF) << 16) |
+                ((long) (rawData[1] & 0xFF) << 8)  |
+                ((long) (rawData[0] & 0xFF));
+
+        // Divide by 10 to shift the decimal point
+        return rawPressure / 10.0f;
+    }
+    public int convertCOConcentration(byte[] rawData) {
+        // Combine the bytes into one value
+        int rawCO = ((rawData[0] & 0xFF) << 8) | (rawData[1] & 0xFF);
+
+        return rawCO;
+    }
+
+
 
 
 
