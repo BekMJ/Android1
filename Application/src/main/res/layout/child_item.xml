@@ -2,7 +2,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:background="@color/backgroundLight">
 
     <!-- Characteristic Name -->
     <TextView
@@ -10,8 +11,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:text="@string/characteristic_name"
-        android:layout_weight="1"/>
+        android:textColor="@color/textPrimary"
+        android:layout_weight="1"
+        style="@style/HeaderText" /> <!-- Apply HeaderText style -->
 
     <!-- Characteristic Value -->
     <TextView
@@ -19,5 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:text="@string/characteristic_value" />
+        android:textColor="@color/textSecondary"
+        style="@style/BodyText" /> <!-- Apply BodyText style -->
 </LinearLayout>

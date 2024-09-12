@@ -325,6 +325,8 @@ int color abc_tint_spinner 0x7f050016
 int color abc_tint_switch_track 0x7f050017
 int color accent_material_dark 0x7f050018
 int color accent_material_light 0x7f050019
+int color backgroundDark 0x7f05005d
+int color backgroundLight 0x7f05005e
 int color background_floating_material_dark 0x7f05001a
 int color background_floating_material_light 0x7f05001b
 int color background_material_dark 0x7f05001c
@@ -335,6 +337,7 @@ int color bright_foreground_inverse_material_dark 0x7f050020
 int color bright_foreground_inverse_material_light 0x7f050021
 int color bright_foreground_material_dark 0x7f050022
 int color bright_foreground_material_light 0x7f050023
+int color buttonColor 0x7f05005f
 int color button_material_dark 0x7f050024
 int color button_material_light 0x7f050025
 int color cardview_dark_background 0x7f050026
@@ -390,6 +393,8 @@ int color switch_thumb_material_dark 0x7f050057
 int color switch_thumb_material_light 0x7f050058
 int color switch_thumb_normal_material_dark 0x7f050059
 int color switch_thumb_normal_material_light 0x7f05005a
+int color textPrimary 0x7f050060
+int color textSecondary 0x7f050061
 int color tooltip_background_dark 0x7f05005b
 int color tooltip_background_light 0x7f05005c
 int dimen abc_action_bar_content_inset_material 0x7f060000
@@ -1074,9 +1079,12 @@ int style Base_Widget_AppCompat_Spinner_Underlined 0x7f0d009e
 int style Base_Widget_AppCompat_TextView_SpinnerItem 0x7f0d009f
 int style Base_Widget_AppCompat_Toolbar 0x7f0d00a0
 int style Base_Widget_AppCompat_Toolbar_Button_Navigation 0x7f0d00a1
+int style BodyText 0x7f0d0169
 int style CardView 0x7f0d00a2
 int style CardView_Dark 0x7f0d00a3
 int style CardView_Light 0x7f0d00a4
+int style CustomButton 0x7f0d016a
+int style HeaderText 0x7f0d016b
 int style Platform_AppCompat 0x7f0d00a5
 int style Platform_AppCompat_Light 0x7f0d00a6
 int style Platform_ThemeOverlay_AppCompat 0x7f0d00a7

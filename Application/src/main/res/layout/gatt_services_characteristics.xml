@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="10dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/backgroundLight"> <!-- Set background color -->
 
     <!-- Connection State and Device Address -->
     <LinearLayout
@@ -16,7 +17,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_device_address"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            style="@style/HeaderText" /> <!-- Apply HeaderText style -->
 
         <Space
             android:layout_width="5dp"
@@ -26,7 +28,8 @@
             android:id="@+id/device_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            style="@style/BodyText" /> <!-- Apply BodyText style -->
     </LinearLayout>
 
     <LinearLayout
@@ -39,7 +42,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_state"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            style="@style/HeaderText" /> <!-- Apply HeaderText style -->
 
         <Space
             android:layout_width="5dp"
@@ -50,15 +54,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/disconnected"
-            android:textSize="18sp" />
+            style="@style/BodyText" /> <!-- Apply BodyText style -->
     </LinearLayout>
-
 
     <!-- ExpandableListView for GATT Services and Characteristics -->
     <ExpandableListView
         android:id="@+id/gatt_services_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundDark"
+        android:dividerHeight="1dp"
+        android:padding="8dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -72,7 +78,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="On" />
+            android:text="On"
+            android:background="@color/buttonColor"
+            android:textColor="@color/colorTitle"
+            android:padding="12dp"
+            android:elevation="4dp"
+            android:layout_margin="8dp" />
 
         <!-- Off Button -->
         <Button
@@ -80,7 +91,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Off" />
+            android:text="Off"
+            android:background="@color/buttonColor"
+            android:textColor="@color/colorTitle"
+            android:padding="12dp"
+            android:elevation="4dp"
+            android:layout_margin="8dp" />
     </LinearLayout>
 
 </LinearLayout>
