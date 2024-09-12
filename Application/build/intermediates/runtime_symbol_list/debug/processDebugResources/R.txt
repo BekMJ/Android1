@@ -656,6 +656,8 @@ int id beginning 0x7f080020
 int id blocking 0x7f080021
 int id bottom 0x7f080022
 int id buttonPanel 0x7f080023
+int id button_off 0x7f0800a0
+int id button_on 0x7f0800a1
 int id cancel_action 0x7f080024
 int id center 0x7f080025
 int id center_horizontal 0x7f080026

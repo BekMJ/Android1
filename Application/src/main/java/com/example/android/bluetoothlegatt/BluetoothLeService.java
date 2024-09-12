@@ -145,7 +145,8 @@ public class BluetoothLeService extends Service {
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
             // Check if this characteristic is the CO concentration characteristic
-            if (characteristic.getUuid().equals(UUID.fromString("19b10001-e8f4-537e-4f6c-d104768a1214"))) {
+            if (characteristic.getUuid().equals(UUID.fromString("19b10001-e8f4-537e-4f6c-d104768a1214"))
+                    ) {
                 if (data.length == 2) {
                     int coConcentration = ((data[1] & 0xFF) << 8) | (data[0] & 0xFF);
                     intent.putExtra(EXTRA_DATA, coConcentration);
@@ -309,25 +310,31 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        // This block is specific to enabling notifications.
-        if (enabled) {
-            if (UUID_GAS_CONCENTRATION_CO.equals(characteristic.getUuid())
-                    || UUID_TEMPERATURE.equals(characteristic.getUuid())
-                    || UUID_CO.equals(characteristic.getUuid())
-                    || UUID_HUMIDITY.equals(characteristic.getUuid())
-                    || UUID_PRESSURE.equals(characteristic.getUuid())
-            ) {
-                BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                        UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-                if (descriptor != null) {
-                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                    mBluetoothGatt.writeDescriptor(descriptor);
-                }
-            }
+        // Enable notification for the characteristic
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+        if (descriptor != null) {
+            descriptor.setValue(enabled ? BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE : BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
+            mBluetoothGatt.writeDescriptor(descriptor);
         }
     }
 
 
+
+    /**
+     * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
+     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
+     * callback.
+     *
+     * @param characteristic The characteristic to read from.
+     */
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+        mBluetoothGatt.writeCharacteristic(characteristic);
+    }
 
     /**
      * Retrieves a list of supported GATT services on the connected device. This should be

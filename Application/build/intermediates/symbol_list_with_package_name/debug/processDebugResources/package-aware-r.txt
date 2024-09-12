@@ -657,6 +657,8 @@ id beginning
 id blocking
 id bottom
 id buttonPanel
+id button_off
+id button_on
 id cancel_action
 id center
 id center_horizontal

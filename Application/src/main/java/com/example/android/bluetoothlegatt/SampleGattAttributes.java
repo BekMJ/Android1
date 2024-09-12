@@ -30,11 +30,13 @@ public class SampleGattAttributes {
     public static String HUMIDITY = "00002a6f-0000-1000-8000-00805f9b34fb";
     public static String PRESSURE = "00002a6d-0000-1000-8000-00805f9b34fb";
     public static String CO = "00002bd0-0000-1000-8000-00805f9b34fb";
+    public static String ENVIRONMENTAL_MONITORING_SERVICE = "0000181a-0000-1000-8000-00805f9b34fb";
+
     static {
         // Sample Services.
         attributes.put("0000180d-0000-1000-8000-00805f9b34fb", "Heart Rate Service");
         attributes.put("0000180a-0000-1000-8000-00805f9b34fb", "Device Information Service");
-        attributes.put("0000181a-0000-1000-8000-00805f9b34fb", "Environmental Monitoring Service");
+        attributes.put(ENVIRONMENTAL_MONITORING_SERVICE , "Environmental Monitoring Service");
         attributes.put(TEMPERATURE, "Temperature");
         attributes.put(HUMIDITY, "Humidity");
 
