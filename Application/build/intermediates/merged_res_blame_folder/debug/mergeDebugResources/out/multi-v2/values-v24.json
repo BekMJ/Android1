@@ -4,7 +4,7 @@
             "outputFile": "com.example.android.bluetoothlegatt.Application-mergeDebugResources-7:/values-v24/values-v24.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\askub\\.gradle\\caches\\transforms-4\\52c2055a9d7940a8da2c88228c35d4f1\\transformed\\support-media-compat-28.0.0\\res\\values-v24\\values-v24.xml",
+                    "source": "C:\\Users\\askub\\.gradle\\caches\\transforms-4\\0268089da6c7e210b8143f8811442b72\\transformed\\support-media-compat-28.0.0\\res\\values-v24\\values-v24.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\askub\\.gradle\\caches\\transforms-4\\adfcee10045002319f67d45861ec6248\\transformed\\appcompat-v7-28.0.0\\res\\values-v24\\values-v24.xml",
+                    "source": "C:\\Users\\askub\\.gradle\\caches\\transforms-4\\cf40246969b7dd8adb60a6d176c396a2\\transformed\\appcompat-v7-28.0.0\\res\\values-v24\\values-v24.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",

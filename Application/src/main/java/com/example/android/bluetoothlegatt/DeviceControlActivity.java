@@ -237,9 +237,9 @@ public class DeviceControlActivity extends Activity {
                 UUID uuid = characteristic.getUuid();
                 if (
                         UUID_CO.equals(uuid) ||
-                        UUID_TEMPERATURE.equals(uuid) ||
-                        UUID_HUMIDITY.equals(uuid) ||
-                        UUID_PRESSURE.equals(uuid)) {
+                                UUID_TEMPERATURE.equals(uuid) ||
+                                UUID_HUMIDITY.equals(uuid) ||
+                                UUID_PRESSURE.equals(uuid)) {
 
                     // Add a delay to ensure operations are queued
                     enableNotificationWithDelay(characteristic, enabled, delay);
