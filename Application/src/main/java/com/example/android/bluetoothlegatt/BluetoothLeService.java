@@ -194,14 +194,7 @@ public class BluetoothLeService extends Service {
         // Combine the bytes into one value
         int rawCO = ((rawData[0] & 0xFF) << 8) | (rawData[1] & 0xFF);
 
-        // Apply the calibration curve using the calculated coefficients
-        double calibratedCO = 0.00023812 * Math.pow(rawCO, 2) + 0.42896 * rawCO - 1.65920;
-
-        if ((int) Math.round(calibratedCO) < 0) {
-            return 0;
-        }
-
-        return (int) Math.round(calibratedCO);
+        return rawCO;
     }
 
 
