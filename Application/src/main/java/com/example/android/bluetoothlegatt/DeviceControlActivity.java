@@ -18,20 +18,18 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -60,9 +58,8 @@ public class DeviceControlActivity extends AppCompatActivity {
     public final static UUID UUID_PRESSURE = UUID.fromString(SampleGattAttributes.PRESSURE);
     public final static UUID UUID_CO = UUID.fromString(SampleGattAttributes.CO);
 
-    // New buttons for test and CSV import
-    private Button testButton, importCsvButton;
     private boolean isTestModeActive = false;
+
 
     // DataPoint class for test data (public static so PlotActivity can access it)
     public static class DataPoint implements java.io.Serializable {
@@ -177,18 +174,13 @@ public class DeviceControlActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gatt_services_characteristics);
 
-        // Existing On/Off buttons.
-        Button buttonOn = findViewById(R.id.button_on);
-        Button buttonOff = findViewById(R.id.button_off);
-        buttonOn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { enableNotifications(true); }
-        });
-        buttonOff.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { enableNotifications(false); }
-        });
 
+
+        // Existing On/Off buttons.
+        SwitchMaterial switchNotifications = findViewById(R.id.switch_notifications);
+        switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            enableNotifications(isChecked);
+        });
 
         Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -249,93 +241,6 @@ public class DeviceControlActivity extends AppCompatActivity {
                             intent.putExtra("pressureData", pressureDataList);
                         } else if (which == 4) {
                             intent.putExtra("coData", coDataList);
-                        }
-                        startActivity(intent);
-                    }
-                })
-                .show();
-    }
-
-    // CSV import: request file picker using the Storage Access Framework.
-    private static final int REQUEST_CODE_IMPORT_CSV = 1001;
-    private void importCsvData() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("text/csv");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(Intent.createChooser(intent, "Select CSV File"), REQUEST_CODE_IMPORT_CSV);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Handle CSV file selection.
-        if (requestCode == REQUEST_CODE_IMPORT_CSV && resultCode == RESULT_OK && data != null) {
-            Uri csvUri = data.getData();
-            importCsvFile(csvUri);
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    // Parses the CSV file and then shows plotting options.
-    private void importCsvFile(Uri uri) {
-        ArrayList<DataPoint> importedTemperature = new ArrayList<>();
-        ArrayList<DataPoint> importedHumidity = new ArrayList<>();
-        ArrayList<DataPoint> importedPressure = new ArrayList<>();
-        ArrayList<DataPoint> importedCO = new ArrayList<>();
-
-        try (InputStream inputStream = getContentResolver().openInputStream(uri);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            String line;
-            boolean header = true;
-            while ((line = reader.readLine()) != null) {
-                if (header) {
-                    header = false;
-                    continue;
-                }
-                String[] tokens = line.split(",");
-                if (tokens.length >= 5) {
-                    long timestamp = Long.parseLong(tokens[0].trim());
-                    float coValue = Float.parseFloat(tokens[1].trim());
-                    float tempValue = Float.parseFloat(tokens[2].trim());
-                    float humidityValue = Float.parseFloat(tokens[3].trim());
-                    float pressureValue = Float.parseFloat(tokens[4].trim());
-                    importedCO.add(new DataPoint(timestamp, coValue));
-                    importedTemperature.add(new DataPoint(timestamp, tempValue));
-                    importedHumidity.add(new DataPoint(timestamp, humidityValue));
-                    importedPressure.add(new DataPoint(timestamp, pressureValue));
-                }
-            }
-            showImportedPlotOptions(importedTemperature, importedHumidity, importedPressure, importedCO);
-        } catch (IOException | NumberFormatException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error importing CSV", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    // Displays plotting options for imported CSV data.
-    private void showImportedPlotOptions(final ArrayList<DataPoint> importedTemperature,
-                                         final ArrayList<DataPoint> importedHumidity,
-                                         final ArrayList<DataPoint> importedPressure,
-                                         final ArrayList<DataPoint> importedCO) {
-        String[] options = {"Plot All", "Plot Temperature", "Plot Humidity", "Plot Pressure", "Plot CO"};
-        new AlertDialog.Builder(this)
-                .setTitle("Select Data to Plot (Imported)")
-                .setItems(options, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(DeviceControlActivity.this, PlotActivity.class);
-                        intent.putExtra("plot_option", which);
-                        if (which == 0) {
-                            intent.putExtra("temperatureData", importedTemperature);
-                            intent.putExtra("humidityData", importedHumidity);
-                            intent.putExtra("pressureData", importedPressure);
-                            intent.putExtra("coData", importedCO);
-                        } else if (which == 1) {
-                            intent.putExtra("temperatureData", importedTemperature);
-                        } else if (which == 2) {
-                            intent.putExtra("humidityData", importedHumidity);
-                        } else if (which == 3) {
-                            intent.putExtra("pressureData", importedPressure);
-                        } else if (which == 4) {
-                            intent.putExtra("coData", importedCO);
                         }
                         startActivity(intent);
                     }
@@ -415,11 +320,6 @@ public class DeviceControlActivity extends AppCompatActivity {
             case R.id.menu_test:
                 // This calls the same logic you had for the "Test" button
                 startDataTest();
-                return true;
-
-            case R.id.menu_import_csv:
-                // This calls the same logic you had for the "Import CSV" button
-                importCsvData();
                 return true;
 
             case android.R.id.home:

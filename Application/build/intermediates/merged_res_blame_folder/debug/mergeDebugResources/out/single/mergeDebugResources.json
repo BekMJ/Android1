@@ -1,0 +1,62 @@
+[
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/drawable-hdpi_tile.9.png.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/drawable-hdpi/tile.9.png"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/layout_activity_settings.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/layout/activity_settings.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/layout_group_item.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/layout/group_item.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/menu_main.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/menu/main.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/layout_actionbar_indeterminate_progress.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/layout/actionbar_indeterminate_progress.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/drawable-hdpi_ic_launcher.png.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/drawable-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/layout_activity_plot.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/layout/activity_plot.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/menu_gatt_services.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/menu/gatt_services.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/layout_child_item.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/layout/child_item.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/layout_listitem_device.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/layout/listitem_device.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/drawable-mdpi_ic_launcher.png.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/drawable-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/drawable-xhdpi_ic_launcher.png.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/drawable-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/drawable-xxhdpi_ic_launcher.png.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/drawable-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/layout_gatt_services_characteristics.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/layout/gatt_services_characteristics.xml"
+    },
+    {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-28:/xml_pref_general.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-31:/xml/pref_general.xml"
+    }
+]

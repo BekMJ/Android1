@@ -2,14 +2,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/menu_refresh"
-        android:title="@string/refresh"
-        android:checkable="false"
-        android:orderInCategory="1"
-        android:showAsAction="ifRoom"
-        tools:ignore="AppCompatResource" />
-
-    <item
         android:id="@+id/menu_disconnect"
         android:title="@string/menu_disconnect"
         android:orderInCategory="101"
@@ -23,10 +15,4 @@
         android:showAsAction="ifRoom|withText"
         tools:ignore="AppCompatResource" />
 
-    <item
-        android:id="@+id/menu_import_csv"
-        android:title="Import CSV"
-        android:orderInCategory="103"
-        android:showAsAction="ifRoom|withText"
-        tools:ignore="AppCompatResource" />
 </menu>

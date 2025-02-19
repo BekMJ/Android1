@@ -1,0 +1,137 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.android.bluetoothlegatt"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="33" />
+10
+11    <!-- Ensure BLE is available -->
+12    <uses-feature
+12-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:7:5-89
+13        android:name="android.hardware.bluetooth_le"
+13-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:7:19-63
+14        android:required="true" />
+14-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:7:64-87
+15
+16    <uses-permission android:name="android.permission.BLUETOOTH" />
+16-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:9:5-67
+16-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:9:22-65
+17    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+17-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:10:5-73
+17-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:10:22-71
+18    <!-- Use fine location for more accurate scans -->
+19    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+19-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:12:5-78
+19-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:12:22-76
+20    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+20-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:13:5-80
+20-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:13:22-78
+21    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+21-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:14:5-76
+21-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:14:22-73
+22    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+22-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:15:5-73
+22-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:15:22-70
+23    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+23-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:16:5-80
+23-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:16:22-78
+24    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+24-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:17:5-79
+24-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:17:22-77
+25    <uses-permission android:name="android.permission.INTERNET" />
+25-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:18:5-66
+25-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:18:22-64
+26    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+26-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:19:5-78
+26-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:19:22-76
+27    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+27-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:20:5-75
+27-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:20:22-73
+28
+29    <permission
+29-->[androidx.core:core:1.10.1] C:\Users\askub\.gradle\caches\transforms-4\65f44c3b959924505133789e14c0d3e4\transformed\core-1.10.1\AndroidManifest.xml:22:5-24:47
+30        android:name="com.example.android.bluetoothlegatt.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+30-->[androidx.core:core:1.10.1] C:\Users\askub\.gradle\caches\transforms-4\65f44c3b959924505133789e14c0d3e4\transformed\core-1.10.1\AndroidManifest.xml:23:9-81
+31        android:protectionLevel="signature" />
+31-->[androidx.core:core:1.10.1] C:\Users\askub\.gradle\caches\transforms-4\65f44c3b959924505133789e14c0d3e4\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
+32
+33    <uses-permission android:name="com.example.android.bluetoothlegatt.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+33-->[androidx.core:core:1.10.1] C:\Users\askub\.gradle\caches\transforms-4\65f44c3b959924505133789e14c0d3e4\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
+33-->[androidx.core:core:1.10.1] C:\Users\askub\.gradle\caches\transforms-4\65f44c3b959924505133789e14c0d3e4\transformed\core-1.10.1\AndroidManifest.xml:26:22-94
+34
+35    <application
+35-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:22:5-41:15
+36        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+36-->[androidx.core:core:1.10.1] C:\Users\askub\.gradle\caches\transforms-4\65f44c3b959924505133789e14c0d3e4\transformed\core-1.10.1\AndroidManifest.xml:28:18-86
+37        android:debuggable="true"
+38        android:extractNativeLibs="true"
+39        android:icon="@drawable/ic_launcher"
+39-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:24:9-45
+40        android:label="@string/app_name"
+40-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:23:9-41
+41        android:testOnly="true"
+42        android:theme="@style/AppTheme" >
+42-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:25:9-40
+43
+44        <!-- Consider updating to a modern theme such as Theme.AppCompat.Light -->
+45
+46        <activity
+46-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:28:5-36:16
+47            android:name="com.example.android.bluetoothlegatt.DeviceScanActivity"
+47-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:29:9-43
+48            android:exported="true"
+48-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:30:9-32
+49            android:label="@string/app_name" >
+49-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:31:9-41
+50            <intent-filter>
+50-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:32:9-35:25
+51                <action android:name="android.intent.action.MAIN" />
+51-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:33:13-65
+51-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:33:21-62
+52
+53                <category android:name="android.intent.category.LAUNCHER" />
+53-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:34:13-73
+53-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:34:23-70
+54            </intent-filter>
+55        </activity>
+56        <activity android:name="com.example.android.bluetoothlegatt.DeviceControlActivity" />
+56-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:38:5-54
+56-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:38:15-52
+57        <activity android:name="com.example.android.bluetoothlegatt.PlotActivity" />
+57-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:39:5-45
+57-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:39:15-43
+58
+59        <service
+59-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:40:5-73
+60            android:name="com.example.android.bluetoothlegatt.BluetoothLeService"
+60-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:40:14-48
+61            android:enabled="true" />
+61-->C:\Users\askub\COSENSOR\Android1\Application\src\main\AndroidManifest.xml:40:49-71
+62
+63        <provider
+63-->[androidx.emoji2:emoji2:1.2.0] C:\Users\askub\.gradle\caches\transforms-4\51b689a0be64552815bc89e805377c7d\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+64            android:name="androidx.startup.InitializationProvider"
+64-->[androidx.emoji2:emoji2:1.2.0] C:\Users\askub\.gradle\caches\transforms-4\51b689a0be64552815bc89e805377c7d\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+65            android:authorities="com.example.android.bluetoothlegatt.androidx-startup"
+65-->[androidx.emoji2:emoji2:1.2.0] C:\Users\askub\.gradle\caches\transforms-4\51b689a0be64552815bc89e805377c7d\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+66            android:exported="false" >
+66-->[androidx.emoji2:emoji2:1.2.0] C:\Users\askub\.gradle\caches\transforms-4\51b689a0be64552815bc89e805377c7d\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+67            <meta-data
+67-->[androidx.emoji2:emoji2:1.2.0] C:\Users\askub\.gradle\caches\transforms-4\51b689a0be64552815bc89e805377c7d\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+68                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+68-->[androidx.emoji2:emoji2:1.2.0] C:\Users\askub\.gradle\caches\transforms-4\51b689a0be64552815bc89e805377c7d\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+69                android:value="androidx.startup" />
+69-->[androidx.emoji2:emoji2:1.2.0] C:\Users\askub\.gradle\caches\transforms-4\51b689a0be64552815bc89e805377c7d\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+70            <meta-data
+70-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\askub\.gradle\caches\transforms-4\c9f7d35ee3f47802cb7a7cfb6be424f5\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+71                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+71-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\askub\.gradle\caches\transforms-4\c9f7d35ee3f47802cb7a7cfb6be424f5\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+72                android:value="androidx.startup" />
+72-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\askub\.gradle\caches\transforms-4\c9f7d35ee3f47802cb7a7cfb6be424f5\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+73        </provider>
+74    </application>
+75
+76</manifest>

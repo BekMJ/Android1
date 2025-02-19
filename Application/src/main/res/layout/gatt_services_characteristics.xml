@@ -16,7 +16,18 @@
         android:dividerHeight="1dp"
         android:padding="8dp" />
 
-    <!-- On/Off buttons -->
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_notifications"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable Notifications"
+        android:checked="false"
+        android:layout_margin="16dp"
+        android:textSize="16sp" />
+
+
+    <!-- On/Off buttons
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,7 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Off" />
-    </LinearLayout>
+    </LinearLayout> -->
 
     <!-- Test and Import CSV buttons
     <LinearLayout
