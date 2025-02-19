@@ -64,10 +64,12 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.EXTRA_DATA";
     public final static String EXTRA_DATA_TYPE =
             "com.example.bluetooth.le.EXTRA_DATA_TYPE";
+    // Added to pass the raw numeric value (as float) for plotting
+    public final static String EXTRA_RAW_VALUE =
+            "com.example.bluetooth.le.EXTRA_RAW_VALUE";
 
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
-
 
     public final static UUID UUID_TEMPERATURE =
             UUID.fromString(SampleGattAttributes.TEMPERATURE);
@@ -81,10 +83,7 @@ public class BluetoothLeService extends Service {
     public final static UUID UUID_HUMIDITY =
             UUID.fromString(SampleGattAttributes.HUMIDITY);
 
-
-
-    // Implements callback methods for GATT events that the app cares about.  For example,
-    // connection change and services discovered.
+    // Implements callback methods for GATT events that the app cares about.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -94,7 +93,6 @@ public class BluetoothLeService extends Service {
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intentAction);
                 Log.i(TAG, "Connected to GATT server.");
-                // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
 
@@ -136,7 +134,6 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
-
     private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
         intent.putExtra(BluetoothLeService.EXTRA_DATA_TYPE, characteristic.getUuid().toString());
@@ -145,61 +142,67 @@ public class BluetoothLeService extends Service {
             if (UUID_TEMPERATURE.equals(characteristic.getUuid())) {
                 float temperature = convertTemperature(data);
                 intent.putExtra(EXTRA_DATA, String.format("%.2f°C", temperature));
+                intent.putExtra(EXTRA_RAW_VALUE, temperature);
             } else if (UUID_HUMIDITY.equals(characteristic.getUuid())) {
                 float humidity = convertHumidity(data);
                 intent.putExtra(EXTRA_DATA, String.format("%.2f%%", humidity));
+                intent.putExtra(EXTRA_RAW_VALUE, humidity);
             } else if (UUID_PRESSURE.equals(characteristic.getUuid())) {
                 float pressure = convertPressure(data);
                 intent.putExtra(EXTRA_DATA, String.format("%.1f Pa", pressure));
+                intent.putExtra(EXTRA_RAW_VALUE, pressure);
             } else if (UUID_CO.equals(characteristic.getUuid())) {
                 int co = convertCOConcentration(data);
                 intent.putExtra(EXTRA_DATA, co + " ppm");
+                intent.putExtra(EXTRA_RAW_VALUE, (float) co);
             }
         }
         sendBroadcast(intent);
     }
 
-
     public float convertTemperature(byte[] rawData) {
-        // Ensure there are at least 2 bytes of data
         if (rawData.length < 2) return 0;
-
-        // Adjust the byte order by reversing the indices used
         int rawTemperature = ((rawData[1] & 0xFF) << 8) | (rawData[0] & 0xFF);
-
-        // Example conversion logic, adapted based on calibration details
-        return rawTemperature /100.0f; // Example scaling and offset
+        return rawTemperature / 100.0f;
     }
 
-
     public float convertHumidity(byte[] rawData) {
-        // Combine the bytes into one value
         int rawHumidity = ((rawData[1] & 0xFF) << 8) | (rawData[0] & 0xFF);
-
-        // Convert and adjust to percentage
-        return rawHumidity / 100.0f;  // Adjusted factor based on your input
+        return rawHumidity / 100.0f;
     }
 
     public float convertPressure(byte[] rawData) {
-        // Combine the bytes into one value assuming they are little-endian
         long rawPressure = ((long) (rawData[3] & 0xFF) << 24) |
                 ((long) (rawData[2] & 0xFF) << 16) |
                 ((long) (rawData[1] & 0xFF) << 8)  |
                 ((long) (rawData[0] & 0xFF));
-
-        // Divide by 10 to shift the decimal point
         return rawPressure / 10.0f;
     }
+
     public int convertCOConcentration(byte[] rawData) {
-        // Combine the bytes into one value
+        // Ensure there is enough data
+        if (rawData == null || rawData.length < 2) {
+            return 0; // or handle error appropriately
+        }
+
+        // Combine the bytes into one value (assuming big-endian order)
         int rawCO = ((rawData[0] & 0xFF) << 8) | (rawData[1] & 0xFF);
 
-        return rawCO;
+        // Coefficients from the linear calibration
+        double slope = 2.21; // example value for 'm'
+        double intercept = 4.52222222; // example value for 'b'
+
+        // Apply the linear calibration equation
+        double calibratedCO = slope * rawCO + intercept;
+
+        // Ensure we don't return a negative concentration
+        if (calibratedCO < 0) {
+            return 0;
+        }
+
+        // Return the rounded value of the calculated concentration
+        return (int) Math.round(calibratedCO);
     }
-
-
-
-
 
     public class LocalBinder extends Binder {
         BluetoothLeService getService() {
@@ -214,23 +217,13 @@ public class BluetoothLeService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        // After using a given device, you should make sure that BluetoothGatt.close() is called
-        // such that resources are cleaned up properly.  In this particular example, close() is
-        // invoked when the UI is disconnected from the Service.
         close();
         return super.onUnbind(intent);
     }
 
     private final IBinder mBinder = new LocalBinder();
 
-    /**
-     * Initializes a reference to the local Bluetooth adapter.
-     *
-     * @return Return true if the initialization is successful.
-     */
     public boolean initialize() {
-        // For API level 18 and above, get a reference to BluetoothAdapter through
-        // BluetoothManager.
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager == null) {
@@ -244,27 +237,14 @@ public class BluetoothLeService extends Service {
             Log.e(TAG, "Unable to obtain a BluetoothAdapter.");
             return false;
         }
-
         return true;
     }
 
-    /**
-     * Connects to the GATT server hosted on the Bluetooth LE device.
-     *
-     * @param address The device address of the destination device.
-     *
-     * @return Return true if the connection is initiated successfully. The connection result
-     *         is reported asynchronously through the
-     *         {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     *         callback.
-     */
     public boolean connect(final String address) {
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
-
-        // Previously connected device.  Try to reconnect.
         if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
                 && mBluetoothGatt != null) {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
@@ -275,14 +255,11 @@ public class BluetoothLeService extends Service {
                 return false;
             }
         }
-
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
-        // We want to directly connect to the device, so we are setting the autoConnect
-        // parameter to false.
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
@@ -290,12 +267,6 @@ public class BluetoothLeService extends Service {
         return true;
     }
 
-    /**
-     * Disconnects an existing connection or cancel a pending connection. The disconnection result
-     * is reported asynchronously through the
-     * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
-     * callback.
-     */
     public void disconnect() {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -304,25 +275,12 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.disconnect();
     }
 
-    /**
-     * After using a given BLE device, the app must call this method to ensure resources are
-     * released properly.
-     */
     public void close() {
-        if (mBluetoothGatt == null) {
-            return;
-        }
+        if (mBluetoothGatt == null) return;
         mBluetoothGatt.close();
         mBluetoothGatt = null;
     }
 
-    /**
-     * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
-     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
-     * callback.
-     *
-     * @param characteristic The characteristic to read from.
-     */
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -331,12 +289,6 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.readCharacteristic(characteristic);
     }
 
-    /**
-     * Enables or disables notification on a give characteristic.
-     *
-     * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
-     */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -344,7 +296,6 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        // Enable notification for the characteristic
         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                 UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
         if (descriptor != null) {
@@ -353,15 +304,6 @@ public class BluetoothLeService extends Service {
         }
     }
 
-
-
-    /**
-     * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
-     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
-     * callback.
-     *
-     * @param characteristic The characteristic to read from.
-     */
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -370,15 +312,8 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.writeCharacteristic(characteristic);
     }
 
-    /**
-     * Retrieves a list of supported GATT services on the connected device. This should be
-     * invoked only after {@code BluetoothGatt#discoverServices()} completes successfully.
-     *
-     * @return A {@code List} of supported services.
-     */
     public List<BluetoothGattService> getSupportedGattServices() {
         if (mBluetoothGatt == null) return null;
-
         return mBluetoothGatt.getServices();
     }
 }

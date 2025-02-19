@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="10dp"
+    android:padding="12dp"
     android:background="@color/backgroundLight">
 
     <!-- Characteristic Name -->
@@ -10,17 +11,13 @@
         android:id="@+id/characteristic_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/textPrimary"
         android:layout_weight="1"
-        style="@style/HeaderText" /> <!-- Apply HeaderText style -->
+        style="@style/HeaderText" />
 
     <!-- Characteristic Value -->
     <TextView
         android:id="@+id/characteristic_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/textSecondary"
-        style="@style/BodyText" /> <!-- Apply BodyText style -->
+        style="@style/BodyText" />
 </LinearLayout>

@@ -1,33 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Primary colors for the app -->
+    <!-- Base application theme using Material Components -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/backgroundLight</item> <!-- Setting background color -->
-        <item name="android:textColor">@color/textPrimary</item> <!-- Default text color -->
+        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorSecondary">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/backgroundLight</item>
+        <!-- Optional: Default text color -->
+        <item name="android:textColor">@color/textPrimary</item>
     </style>
 
-    <!-- Custom button style -->
-    <style name="CustomButton" parent="Widget.AppCompat.Button">
-        <item name="android:background">@color/buttonColor</item> <!-- Use the button color defined -->
-        <item name="android:textColor">@color/colorTitle</item> <!-- White text -->
-        <item name="android:elevation">4dp</item> <!-- Adds shadow effect -->
+    <!-- Custom button style using Material style attributes -->
+    <style name="CustomButton" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/buttonColor</item>
+        <item name="android:textColor">@color/colorTitle</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:elevation">4dp</item>
         <item name="android:padding">12dp</item>
         <item name="android:layout_margin">8dp</item>
     </style>
 
-    <!-- Custom TextView style for headers -->
-    <style name="HeaderText" parent="TextAppearance.AppCompat.Large">
+    <!-- Header and body text styles -->
+    <style name="HeaderText" parent="TextAppearance.MaterialComponents.Headline6">
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:padding">8dp</item>
     </style>
 
-    <!-- Custom TextView style for body text -->
-    <style name="BodyText" parent="TextAppearance.AppCompat.Medium">
+    <style name="BodyText" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:textColor">@color/textSecondary</item>
         <item name="android:padding">8dp</item>
     </style>

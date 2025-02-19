@@ -1,30 +1,16 @@
-/*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.android.bluetoothlegatt;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -37,7 +23,15 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,131 +40,133 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * For a given BLE device, this Activity provides the user interface to connect, display data,
- * and display GATT services and characteristics supported by the device.  The Activity
- * communicates with {@code BluetoothLeService}, which in turn interacts with the
- * Bluetooth LE API.
- */
-public class DeviceControlActivity extends Activity {
+public class DeviceControlActivity extends AppCompatActivity {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
-
     private TextView mConnectionState;
-
-
     private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
     private BluetoothLeService mBluetoothLeService;
-    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
-            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<>();
     private boolean mConnected = false;
-    private BluetoothGattCharacteristic mNotifyCharacteristic;
-    private BluetoothGattCharacteristic mCharacteristic;
 
-    private int [] mTrendData = new int[15];
-    private int mTimeSeconds = 0;
+    // UUIDs of interest
+    public final static UUID UUID_TEMPERATURE = UUID.fromString(SampleGattAttributes.TEMPERATURE);
+    public final static UUID UUID_HUMIDITY = UUID.fromString(SampleGattAttributes.HUMIDITY);
+    public final static UUID UUID_PRESSURE = UUID.fromString(SampleGattAttributes.PRESSURE);
+    public final static UUID UUID_CO = UUID.fromString(SampleGattAttributes.CO);
 
-    private CountDownTimer cTimer = null;
+    // New buttons for test and CSV import
+    private Button testButton, importCsvButton;
+    private boolean isTestModeActive = false;
+
+    // DataPoint class for test data (public static so PlotActivity can access it)
+    public static class DataPoint implements java.io.Serializable {
+        public long timestamp;
+        public float value;
+        public DataPoint(long timestamp, float value) {
+            this.timestamp = timestamp;
+            this.value = value;
+        }
+    }
+
+    // Data lists for sensors
+    private ArrayList<DataPoint> coDataList = new ArrayList<>();
+    private ArrayList<DataPoint> temperatureDataList = new ArrayList<>();
+    private ArrayList<DataPoint> humidityDataList = new ArrayList<>();
+    private ArrayList<DataPoint> pressureDataList = new ArrayList<>();
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
 
-    public final static UUID UUID_HEART_RATE_MEASUREMENT =
-            UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
-
-
-    public final static UUID UUID_TEMPERATURE =
-            UUID.fromString(SampleGattAttributes.TEMPERATURE);
-
-    public final static UUID UUID_CO =
-            UUID.fromString(SampleGattAttributes.CO);
-
-    public final static UUID UUID_PRESSURE =
-            UUID.fromString(SampleGattAttributes.PRESSURE);
-
-    public final static UUID UUID_HUMIDITY =
-            UUID.fromString(SampleGattAttributes.HUMIDITY);
-
-    // Code to manage Service lifecycle.
+    // Service connection with extra logging.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
+                Toast.makeText(DeviceControlActivity.this, "Bluetooth initialization failed", Toast.LENGTH_SHORT).show();
                 finish();
+                return;
             }
-            // Automatically connects to the device upon successful start-up initialization.
-            mBluetoothLeService.connect(mDeviceAddress);
+            Log.d(TAG, "Service connected. Attempting to connect to: " + mDeviceAddress);
+            boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            Log.d(TAG, "Connect request result = " + result);
+            if (!result) {
+                Toast.makeText(DeviceControlActivity.this, "Failed to initiate connection", Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "Service disconnected");
             mBluetoothLeService = null;
         }
     };
 
-    // Handles various events fired by the Service.
-    // ACTION_GATT_CONNECTED: connected to a GATT server.
-    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
-    // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
-    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
-    //                        or notification operations.
+    // BroadcastReceiver to handle BLE events with logging.
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
+            Log.d(TAG, "Broadcast received: " + action);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
-                invalidateOptionsMenu();
                 updateConnectionState(R.string.connected);
+                Toast.makeText(DeviceControlActivity.this, "Connected to device", Toast.LENGTH_SHORT).show();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
                 clearUI();
+                Toast.makeText(DeviceControlActivity.this, "Disconnected from device", Toast.LENGTH_SHORT).show();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                Log.d(TAG, "GATT services discovered");
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 String dataType = intent.getStringExtra(BluetoothLeService.EXTRA_DATA_TYPE);
                 String dataValue = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
-
-                // Update the ExpandableListView with the data
                 updateCharacteristicValue(dataType, dataValue);
+
+                // Record raw value if test mode is active.
+                if (isTestModeActive) {
+                    float rawValue = intent.getFloatExtra(BluetoothLeService.EXTRA_RAW_VALUE, Float.NaN);
+                    long timestamp = System.currentTimeMillis();
+                    if (dataType.equals(UUID_TEMPERATURE.toString())) {
+                        temperatureDataList.add(new DataPoint(timestamp, rawValue));
+                    } else if (dataType.equals(UUID_HUMIDITY.toString())) {
+                        humidityDataList.add(new DataPoint(timestamp, rawValue));
+                    } else if (dataType.equals(UUID_PRESSURE.toString())) {
+                        pressureDataList.add(new DataPoint(timestamp, rawValue));
+                    } else if (dataType.equals(UUID_CO.toString())) {
+                        coDataList.add(new DataPoint(timestamp, rawValue));
+                    }
+                }
             }
         }
     };
 
     private void updateCharacteristicValue(String dataType, String dataValue) {
-        // Loop through the characteristics and update the corresponding value
         for (int i = 0; i < mGattCharacteristics.size(); i++) {
             ArrayList<BluetoothGattCharacteristic> charas = mGattCharacteristics.get(i);
             for (BluetoothGattCharacteristic characteristic : charas) {
                 if (characteristic.getUuid().toString().equals(dataType)) {
-                    // Get the child item in the ExpandableListView
                     HashMap<String, String> childItem = (HashMap<String, String>)
                             ((SimpleExpandableListAdapter) mGattServicesList.getExpandableListAdapter())
                                     .getChild(i, charas.indexOf(characteristic));
-
-                    // Update the child item's value with the new data
                     if (childItem != null) {
                         childItem.put("VALUE", dataValue);
                     }
-
-                    // Notify the adapter of the change
                     ((SimpleExpandableListAdapter) mGattServicesList.getExpandableListAdapter()).notifyDataSetChanged();
                     break;
                 }
             }
         }
     }
-
 
     private void clearUI() {
         mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
@@ -181,40 +177,173 @@ public class DeviceControlActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gatt_services_characteristics);
 
-        // Get the On and Off buttons
+        // Existing On/Off buttons.
         Button buttonOn = findViewById(R.id.button_on);
         Button buttonOff = findViewById(R.id.button_off);
-
-        // Set the On button functionality
         buttonOn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                enableNotifications(true);
-            }
+            public void onClick(View v) { enableNotifications(true); }
         });
-
-        // Set the Off button functionality
         buttonOff.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                enableNotifications(false);
-            }
+            public void onClick(View v) { enableNotifications(false); }
         });
 
-        final Intent intent = getIntent();
+
+        Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
 
-        // Sets up UI references.
-        mGattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
-        mConnectionState = (TextView) findViewById(R.id.connection_state);
+        mGattServicesList = findViewById(R.id.gatt_services_list);
 
-        getActionBar().setTitle(mDeviceName);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(mDeviceName);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        } else {
+            Log.w(TAG, "getSupportActionBar() returned null");
+        }
+
+        // Bind to the BluetoothLeService.
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
+    // Starts a 15-second data test.
+    private void startDataTest() {
+        coDataList.clear();
+        temperatureDataList.clear();
+        humidityDataList.clear();
+        pressureDataList.clear();
+
+        isTestModeActive = true;
+        Toast.makeText(this, "Test started: collecting data for 15 sec", Toast.LENGTH_SHORT).show();
+        new CountDownTimer(15000, 1000) {
+            public void onTick(long millisUntilFinished) { }
+            public void onFinish() {
+                isTestModeActive = false;
+                Toast.makeText(DeviceControlActivity.this, "Test finished", Toast.LENGTH_SHORT).show();
+                showPlotOptions();
+            }
+        }.start();
+    }
+
+    // Displays a dialog to choose which sensor data to plot.
+    private void showPlotOptions() {
+        String[] options = {"Plot All", "Plot Temperature", "Plot Humidity", "Plot Pressure", "Plot CO"};
+        new AlertDialog.Builder(this)
+                .setTitle("Select Data to Plot")
+                .setItems(options, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(DeviceControlActivity.this, PlotActivity.class);
+                        intent.putExtra("plot_option", which);
+                        if (which == 0) {
+                            intent.putExtra("temperatureData", temperatureDataList);
+                            intent.putExtra("humidityData", humidityDataList);
+                            intent.putExtra("pressureData", pressureDataList);
+                            intent.putExtra("coData", coDataList);
+                        } else if (which == 1) {
+                            intent.putExtra("temperatureData", temperatureDataList);
+                        } else if (which == 2) {
+                            intent.putExtra("humidityData", humidityDataList);
+                        } else if (which == 3) {
+                            intent.putExtra("pressureData", pressureDataList);
+                        } else if (which == 4) {
+                            intent.putExtra("coData", coDataList);
+                        }
+                        startActivity(intent);
+                    }
+                })
+                .show();
+    }
+
+    // CSV import: request file picker using the Storage Access Framework.
+    private static final int REQUEST_CODE_IMPORT_CSV = 1001;
+    private void importCsvData() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("text/csv");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(Intent.createChooser(intent, "Select CSV File"), REQUEST_CODE_IMPORT_CSV);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Handle CSV file selection.
+        if (requestCode == REQUEST_CODE_IMPORT_CSV && resultCode == RESULT_OK && data != null) {
+            Uri csvUri = data.getData();
+            importCsvFile(csvUri);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    // Parses the CSV file and then shows plotting options.
+    private void importCsvFile(Uri uri) {
+        ArrayList<DataPoint> importedTemperature = new ArrayList<>();
+        ArrayList<DataPoint> importedHumidity = new ArrayList<>();
+        ArrayList<DataPoint> importedPressure = new ArrayList<>();
+        ArrayList<DataPoint> importedCO = new ArrayList<>();
+
+        try (InputStream inputStream = getContentResolver().openInputStream(uri);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            boolean header = true;
+            while ((line = reader.readLine()) != null) {
+                if (header) {
+                    header = false;
+                    continue;
+                }
+                String[] tokens = line.split(",");
+                if (tokens.length >= 5) {
+                    long timestamp = Long.parseLong(tokens[0].trim());
+                    float coValue = Float.parseFloat(tokens[1].trim());
+                    float tempValue = Float.parseFloat(tokens[2].trim());
+                    float humidityValue = Float.parseFloat(tokens[3].trim());
+                    float pressureValue = Float.parseFloat(tokens[4].trim());
+                    importedCO.add(new DataPoint(timestamp, coValue));
+                    importedTemperature.add(new DataPoint(timestamp, tempValue));
+                    importedHumidity.add(new DataPoint(timestamp, humidityValue));
+                    importedPressure.add(new DataPoint(timestamp, pressureValue));
+                }
+            }
+            showImportedPlotOptions(importedTemperature, importedHumidity, importedPressure, importedCO);
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error importing CSV", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Displays plotting options for imported CSV data.
+    private void showImportedPlotOptions(final ArrayList<DataPoint> importedTemperature,
+                                         final ArrayList<DataPoint> importedHumidity,
+                                         final ArrayList<DataPoint> importedPressure,
+                                         final ArrayList<DataPoint> importedCO) {
+        String[] options = {"Plot All", "Plot Temperature", "Plot Humidity", "Plot Pressure", "Plot CO"};
+        new AlertDialog.Builder(this)
+                .setTitle("Select Data to Plot (Imported)")
+                .setItems(options, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(DeviceControlActivity.this, PlotActivity.class);
+                        intent.putExtra("plot_option", which);
+                        if (which == 0) {
+                            intent.putExtra("temperatureData", importedTemperature);
+                            intent.putExtra("humidityData", importedHumidity);
+                            intent.putExtra("pressureData", importedPressure);
+                            intent.putExtra("coData", importedCO);
+                        } else if (which == 1) {
+                            intent.putExtra("temperatureData", importedTemperature);
+                        } else if (which == 2) {
+                            intent.putExtra("humidityData", importedHumidity);
+                        } else if (which == 3) {
+                            intent.putExtra("pressureData", importedPressure);
+                        } else if (which == 4) {
+                            intent.putExtra("coData", importedCO);
+                        }
+                        startActivity(intent);
+                    }
+                })
+                .show();
+    }
+
+    // Enables notifications with a slight delay between each.
     private void enableNotificationWithDelay(final BluetoothGattCharacteristic characteristic, final boolean enabled, int delay) {
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -224,40 +353,30 @@ public class DeviceControlActivity extends Activity {
         }, delay);
     }
 
-    // Enable notifications for all four characteristics
     private void enableNotifications(boolean enabled) {
-        if (mBluetoothLeService == null || mGattCharacteristics == null) {
-            return;
-        }
-
-        // Set notifications for each characteristic with a small delay
+        if (mBluetoothLeService == null || mGattCharacteristics == null) return;
         int delay = 0;
         for (ArrayList<BluetoothGattCharacteristic> charas : mGattCharacteristics) {
             for (BluetoothGattCharacteristic characteristic : charas) {
                 UUID uuid = characteristic.getUuid();
-                if (
-                        UUID_CO.equals(uuid) ||
+                if (UUID_CO.equals(uuid) ||
                         UUID_TEMPERATURE.equals(uuid) ||
                         UUID_HUMIDITY.equals(uuid) ||
                         UUID_PRESSURE.equals(uuid)) {
-
-                    // Add a delay to ensure operations are queued
                     enableNotificationWithDelay(characteristic, enabled, delay);
-                    delay += 200;  // Add 200ms delay between each operation
+                    delay += 200;
                 }
             }
         }
     }
-
-
 
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (mBluetoothLeService != null) {
-            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
+            boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            Log.d(TAG, "onResume: connect() returned: " + result);
         }
     }
 
@@ -277,24 +396,30 @@ public class DeviceControlActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gatt_services, menu);
-        if (mConnected) {
-            menu.findItem(R.id.menu_connect).setVisible(false);
-            menu.findItem(R.id.menu_disconnect).setVisible(true);
-        } else {
-            menu.findItem(R.id.menu_connect).setVisible(true);
-            menu.findItem(R.id.menu_disconnect).setVisible(false);
-        }
+        // Always show "Disconnect" in the menu
+        menu.findItem(R.id.menu_disconnect).setVisible(true);
         return true;
     }
 
+
     @Override
+
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case R.id.menu_connect:
-                mBluetoothLeService.connect(mDeviceAddress);
-                return true;
             case R.id.menu_disconnect:
-                mBluetoothLeService.disconnect();
+                if (mBluetoothLeService != null) {
+                    mBluetoothLeService.disconnect();
+                }
+                return true;
+
+            case R.id.menu_test:
+                // This calls the same logic you had for the "Test" button
+                startDataTest();
+                return true;
+
+            case R.id.menu_import_csv:
+                // This calls the same logic you had for the "Import CSV" button
+                importCsvData();
                 return true;
 
             case android.R.id.home:
@@ -304,30 +429,20 @@ public class DeviceControlActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+
     private void updateConnectionState(final int resourceId) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mConnectionState.setText(resourceId);
-            }
-        });
+
     }
 
-
-
-    // Demonstrates how to iterate through the supported GATT Services/Characteristics.
-// In this sample, we populate the data structure that is bound to the ExpandableListView
-// on the UI.
+    // Displays discovered GATT services and their characteristics.
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
-
         String unknownServiceString = getResources().getString(R.string.unknown_service);
         String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
         ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
         ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>();
         mGattCharacteristics = new ArrayList<>();
 
-        // Define the UUIDs of interest
         Set<String> relevantUuids = new HashSet<>(Arrays.asList(
                 "00002a6e-0000-1000-8000-00805f9b34fb", // Temperature
                 "00002a6f-0000-1000-8000-00805f9b34fb", // Humidity
@@ -335,7 +450,6 @@ public class DeviceControlActivity extends Activity {
                 "00002a6d-0000-1000-8000-00805f9b34fb"  // Pressure
         ));
 
-        // Loops through available GATT Services.
         for (BluetoothGattService gattService : gattServices) {
             HashMap<String, String> currentServiceData = new HashMap<>();
             String uuid = gattService.getUuid().toString();
@@ -345,26 +459,18 @@ public class DeviceControlActivity extends Activity {
                 gattServiceData.add(currentServiceData);
 
                 ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ArrayList<>();
-                List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
                 ArrayList<BluetoothGattCharacteristic> charas = new ArrayList<>();
-
-                // Loops through available Characteristics.
-                for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                for (BluetoothGattCharacteristic gattCharacteristic : gattService.getCharacteristics()) {
                     uuid = gattCharacteristic.getUuid().toString();
                     if (relevantUuids.contains(uuid)) {
                         charas.add(gattCharacteristic);
-
                         HashMap<String, String> currentCharaData = new HashMap<>();
                         currentCharaData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
                         currentCharaData.put(LIST_UUID, uuid);
-
-                        // Add a placeholder for characteristic value (will be updated later)
                         currentCharaData.put("VALUE", "N/A");
-
                         gattCharacteristicGroupData.add(currentCharaData);
                     }
                 }
-
                 if (!charas.isEmpty()) {
                     mGattCharacteristics.add(charas);
                     gattCharacteristicData.add(gattCharacteristicGroupData);
@@ -375,28 +481,23 @@ public class DeviceControlActivity extends Activity {
         SimpleExpandableListAdapter gattServiceAdapter = new SimpleExpandableListAdapter(
                 this,
                 gattServiceData,
-                android.R.layout.simple_expandable_list_item_2,
-                new String[] { LIST_NAME, LIST_UUID },
-                new int[] { android.R.id.text1, android.R.id.text2 },
+                R.layout.group_item,
+                new String[]{LIST_NAME, LIST_UUID},
+                new int[]{android.R.id.text1, android.R.id.text2},
                 gattCharacteristicData,
-                R.layout.child_item, // Use custom child layout
-                new String[] { LIST_NAME, "VALUE" }, // Display name and value
-                new int[] { R.id.characteristic_name, R.id.characteristic_value } // Bind data
+                R.layout.child_item,
+                new String[]{LIST_NAME, "VALUE"},
+                new int[]{R.id.characteristic_name, R.id.characteristic_value}
         );
         mGattServicesList.setAdapter(gattServiceAdapter);
     }
 
-
-
     private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
+        IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
     }
-
-
-
 }

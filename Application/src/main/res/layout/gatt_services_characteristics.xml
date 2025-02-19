@@ -2,60 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
+    android:layout_margin="16dp"
     android:orientation="vertical"
-    android:background="@color/backgroundLight"> <!-- Set background color -->
+    android:background="@color/backgroundLight">
 
-    <!-- Connection State and Device Address -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_device_address"
-            android:textSize="18sp"
-            style="@style/HeaderText" /> <!-- Apply HeaderText style -->
-
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/device_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            style="@style/BodyText" /> <!-- Apply BodyText style -->
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_state"
-            android:textSize="18sp"
-            style="@style/HeaderText" /> <!-- Apply HeaderText style -->
-
-        <Space
-            android:layout_width="5dp"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/connection_state"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/disconnected"
-            style="@style/BodyText" /> <!-- Apply BodyText style -->
-    </LinearLayout>
 
     <!-- ExpandableListView for GATT Services and Characteristics -->
     <ExpandableListView
@@ -66,37 +16,52 @@
         android:dividerHeight="1dp"
         android:padding="8dp" />
 
+    <!-- On/Off buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal">
 
-        <!-- On Button -->
         <Button
             android:id="@+id/button_on"
+            style="@style/CustomButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="On"
-            android:background="@color/buttonColor"
-            android:textColor="@color/colorTitle"
-            android:padding="12dp"
-            android:elevation="4dp"
-            android:layout_margin="8dp" />
+            android:text="On" />
 
-        <!-- Off Button -->
         <Button
             android:id="@+id/button_off"
+            style="@style/CustomButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Off"
-            android:background="@color/buttonColor"
-            android:textColor="@color/colorTitle"
-            android:padding="12dp"
-            android:elevation="4dp"
-            android:layout_margin="8dp" />
+            android:text="Off" />
     </LinearLayout>
+
+    <!-- Test and Import CSV buttons
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_test"
+            style="@style/CustomButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Test" />
+
+        <Button
+            android:id="@+id/button_import_csv"
+            style="@style/CustomButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Import CSV" />
+    </LinearLayout> -->
 
 </LinearLayout>

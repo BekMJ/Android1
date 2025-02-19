@@ -1,11 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- OU Crimson Red as the primary color -->
     <color name="colorPrimary">#841617</color>
-    <color name="colorPrimaryDark">#801010</color>
-    <color name="colorAccent">#FF0000</color>
+    <!-- A slightly darker shade for the primary variant -->
+    <color name="colorPrimaryDark">#7A1414</color>
+    <!-- Accent color can be kept or updated as needed -->
+    <color name="colorAccent">#03DAC5</color>
     <color name="colorTitle">#FFFFFF</color>
-    <color name="textPrimary">#212121</color> <!-- Dark primary text color -->
-    <color name="textSecondary">#757575</color> <!-- Lighter secondary text color -->
-    <color name="backgroundLight">#F5F5F5</color> <!-- Light background -->
-    <color name="backgroundDark">#333333</color> <!-- Dark background for certain elements -->
-    <color name="buttonColor">#841617</color> <!-- Button background color matching the primary color -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="backgroundLight">#F5F5F5</color>
+    <color name="backgroundDark">#333333</color>
+    <!-- Use OU Crimson Red for buttons as well -->
+    <color name="buttonColor">#841617</color>
 </resources>
