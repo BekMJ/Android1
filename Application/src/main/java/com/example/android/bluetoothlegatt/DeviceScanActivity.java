@@ -1,9 +1,7 @@
 package com.example.android.bluetoothlegatt;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -24,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -33,41 +32,53 @@ import org.apache.commons.net.ftp.FTPClient;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class DeviceScanActivity extends ListActivity {
-    private LeDeviceListAdapter mLeDeviceListAdapter;
-    private BluetoothAdapter mBluetoothAdapter;
-    private boolean mScanning;
-    private Handler mHandler;
+/**
+ * Activity for scanning and displaying available Bluetooth LE devices.
+ */
+public class DeviceScanActivity extends AppCompatActivity {
+    private static final String TAG = "BTCOM Device List";
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_LOCATION_PERMISSION = 101;
-    // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 10000;
-    private final static String TAG = "BTCOM Device List";
-    private static String FTPHostName = "ftp.weng.oucreate.com";
+    private static final long SCAN_PERIOD = 10000; // 10 seconds
+
+    private BluetoothAdapter mBluetoothAdapter;
+    private LeDeviceListAdapter mLeDeviceListAdapter;
+    private boolean mScanning;
+    private Handler mHandler;
+
+    private ListView mListView; // Our ListView reference
+
+    // FTP credentials
+    private static final String FTPHostName = "ftp.weng.oucreate.com";
     private static final int FTPPort = 21;
-    private static String FTPUsername = "yang@ftp.weng.oucreate.com";
-    private static String FTPPassword = "NPLOUWeng2848";
+    private static final String FTPUsername = "yang@ftp.weng.oucreate.com";
+    private static final String FTPPassword = "NPLOUWeng2848";
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_device_scan); // Must have a ListView in this layout
+
+        // If using the native ActionBar (instead of getSupportActionBar()):
         if (getActionBar() != null) {
             getActionBar().setTitle(R.string.title_devices);
         } else {
             Log.w(TAG, "ActionBar is null");
         }
+
         mHandler = new Handler();
 
-        // Check if BLE is supported.
+        // Check if BLE is supported
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        // Initialize the Bluetooth adapter.
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        // Initialize Bluetooth adapter
+        BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null) {
             Toast.makeText(this, "Bluetooth Manager not available", Toast.LENGTH_SHORT).show();
             finish();
@@ -79,52 +90,97 @@ public class DeviceScanActivity extends ListActivity {
             finish();
             return;
         }
+
+        // Initialize our custom list adapter
+        mLeDeviceListAdapter = new LeDeviceListAdapter();
+
+        // Find and set up the ListView from our layout
+        mListView = findViewById(R.id.device_listview);
+        if (mListView == null) {
+            Log.e(TAG, "ListView with id 'device_list_view' not found in layout!");
+            finish();
+            return;
+        }
+        mListView.setAdapter(mLeDeviceListAdapter);
+
+        // Handle item clicks
+        mListView.setOnItemClickListener((parent, view, position, id) -> {
+            final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
+            if (device == null) return;
+            Intent intent = new Intent(DeviceScanActivity.this, DeviceControlActivity.class);
+            intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
+            intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+            if (mScanning) {
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                mScanning = false;
+            }
+            startActivity(intent);
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        // Check and request location permission.
+        // Check location permission for BLE scanning
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
+            ActivityCompat.requestPermissions(
+                    this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION);
-            return; // Wait for permission result.
+                    REQUEST_LOCATION_PERMISSION
+            );
+            return; // Wait for the permission result
         }
 
-        // Ensure Bluetooth is enabled.
+        // Ensure Bluetooth is enabled
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        // Initialize list adapter and start scanning.
-        mLeDeviceListAdapter = new LeDeviceListAdapter();
-        setListAdapter(mLeDeviceListAdapter);
+        // Clear and start scanning
+        mLeDeviceListAdapter.clear();
+        mLeDeviceListAdapter.notifyDataSetChanged();
         scanLeDevice(true);
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        scanLeDevice(false);
+        if (mLeDeviceListAdapter != null) {
+            mLeDeviceListAdapter.clear();
+            mLeDeviceListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == RESULT_CANCELED) {
+            Toast.makeText(this, "Bluetooth must be enabled", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    // Handle location permission result
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, resume scanning.
-                mLeDeviceListAdapter = new LeDeviceListAdapter();
-                setListAdapter(mLeDeviceListAdapter);
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted; resume scanning
+                mLeDeviceListAdapter.clear();
+                mLeDeviceListAdapter.notifyDataSetChanged();
                 scanLeDevice(true);
             } else {
-                // Show dialog explaining that location permission is required.
+                // Show dialog explaining that location permission is required
                 new AlertDialog.Builder(this)
                         .setTitle("Location Permission Required")
                         .setMessage("Location permission is required for BLE scanning. The app will now close.")
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> finish())
                         .setCancelable(false)
                         .show();
             }
@@ -133,6 +189,7 @@ public class DeviceScanActivity extends ListActivity {
         }
     }
 
+    // Inflate the options menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -148,11 +205,13 @@ public class DeviceScanActivity extends ListActivity {
         return true;
     }
 
+    // Handle menu actions (Scan/Stop)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_scan) {
             mLeDeviceListAdapter.clear();
+            mLeDeviceListAdapter.notifyDataSetChanged();
             scanLeDevice(true);
             return true;
         } else if (id == R.id.menu_stop) {
@@ -162,51 +221,18 @@ public class DeviceScanActivity extends ListActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            Toast.makeText(this, "Bluetooth must be enabled", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        scanLeDevice(false);
-        if (mLeDeviceListAdapter != null) {
-            mLeDeviceListAdapter.clear();
-        }
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
-        if (device == null) return;
-        Intent intent = new Intent(this, DeviceControlActivity.class);
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
-        if (mScanning) {
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            mScanning = false;
-        }
-        startActivity(intent);
-    }
-
+    // Start or stop scanning for BLE devices
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             Log.i(TAG, "Starting BLE scan...");
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScanning = false;
-                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                    invalidateOptionsMenu();
-                    Log.i(TAG, "BLE scan stopped.");
-                }
+            // Stop scanning after a pre-defined period
+            mHandler.postDelayed(() -> {
+                mScanning = false;
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                invalidateOptionsMenu();
+                Log.i(TAG, "BLE scan stopped.");
             }, SCAN_PERIOD);
+
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         } else {
@@ -216,26 +242,27 @@ public class DeviceScanActivity extends ListActivity {
         invalidateOptionsMenu();
     }
 
-    // Adapter for displaying discovered BLE devices.
+    // Adapter for holding discovered BLE devices
     private class LeDeviceListAdapter extends BaseAdapter {
         private ArrayList<BluetoothDevice> mLeDevices;
         private LayoutInflater mInflator;
 
-        public LeDeviceListAdapter() {
+        LeDeviceListAdapter() {
             super();
             mLeDevices = new ArrayList<>();
             mInflator = DeviceScanActivity.this.getLayoutInflater();
-            Log.i(TAG, "Device list adapter created, starting scan...");
+            Log.i(TAG, "Device list adapter created.");
         }
 
         public void addDevice(BluetoothDevice device) {
             String deviceName = device.getName();
             Log.d(TAG, "Discovered device: " + deviceName);
-            if (deviceName != null && deviceName.startsWith("Univ. Okla") && !mLeDevices.contains(device)) {
+            if (deviceName != null
+                    && deviceName.startsWith("Univ. Okla")
+                    && !mLeDevices.contains(device)) {
                 mLeDevices.add(device);
             }
         }
-
 
         public BluetoothDevice getDevice(int position) {
             return mLeDevices.get(position);
@@ -260,47 +287,47 @@ public class DeviceScanActivity extends ListActivity {
             return i;
         }
 
+        // Inflate each row of the ListView with listitem_device.xml
         @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
+        public View getView(int i, View convertView, ViewGroup parent) {
             ViewHolder viewHolder;
-            if (view == null) {
-                view = mInflator.inflate(R.layout.listitem_device, null);
+            if (convertView == null) {
+                convertView = mInflator.inflate(R.layout.listitem_device, parent, false);
                 viewHolder = new ViewHolder();
-                viewHolder.deviceAddress = view.findViewById(R.id.device_address);
-                viewHolder.deviceName = view.findViewById(R.id.device_name);
-                view.setTag(viewHolder);
+                viewHolder.deviceName = convertView.findViewById(R.id.device_name);
+                viewHolder.deviceAddress = convertView.findViewById(R.id.device_address);
+                convertView.setTag(viewHolder);
             } else {
-                viewHolder = (ViewHolder) view.getTag();
+                viewHolder = (ViewHolder) convertView.getTag();
             }
+
             BluetoothDevice device = mLeDevices.get(i);
             String deviceName = device.getName();
-            if (deviceName != null && deviceName.length() > 0)
+            if (deviceName != null && deviceName.length() > 0) {
                 viewHolder.deviceName.setText(deviceName);
-            else
+            } else {
                 viewHolder.deviceName.setText(R.string.unknown_device);
+            }
             viewHolder.deviceAddress.setText(device.getAddress());
-            return view;
+
+            return convertView;
         }
     }
 
-    private class ViewHolder {
+    // ViewHolder pattern for list rows
+    private static class ViewHolder {
         TextView deviceName;
         TextView deviceAddress;
     }
 
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-        @Override
-        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mLeDeviceListAdapter.addDevice(device);
-                    mLeDeviceListAdapter.notifyDataSetChanged();
-                }
+    // Callback for BLE scan results
+    private final BluetoothAdapter.LeScanCallback mLeScanCallback = (device, rssi, scanRecord) ->
+            runOnUiThread(() -> {
+                mLeDeviceListAdapter.addDevice(device);
+                mLeDeviceListAdapter.notifyDataSetChanged();
             });
-        }
-    };
 
+    // FTP example code
     public FTPClient connectftp() {
         FTPClient ftp = new FTPClient();
         ftp.setConnectTimeout(5000);
@@ -318,4 +345,4 @@ public class DeviceScanActivity extends ListActivity {
         }
         return ftp;
     }
-    }
+}

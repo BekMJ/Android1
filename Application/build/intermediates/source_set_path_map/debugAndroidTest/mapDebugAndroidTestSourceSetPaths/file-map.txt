@@ -1,4 +1,0 @@
-com.example.android.bluetoothlegatt.test.Application-androidTest-0 C:\Users\askub\COSENSOR\Android1\Application\build\generated\res\resValues\androidTest\debug
-com.example.android.bluetoothlegatt.test.Application-mergeDebugAndroidTestResources-1 C:\Users\askub\COSENSOR\Android1\Application\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
-com.example.android.bluetoothlegatt.test.Application-mergeDebugAndroidTestResources-2 C:\Users\askub\COSENSOR\Android1\Application\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
-com.example.android.bluetoothlegatt.test.Application-debugAndroidTest-3 C:\Users\askub\COSENSOR\Android1\Application\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources

@@ -10,26 +10,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -200,17 +195,24 @@ public class DeviceControlActivity extends AppCompatActivity {
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
-    // Starts a 15-second data test.
-    private void startDataTest() {
+
+    private void startDataTest(int durationSeconds) {
+        // Clear previous test data
         coDataList.clear();
         temperatureDataList.clear();
         humidityDataList.clear();
         pressureDataList.clear();
 
         isTestModeActive = true;
-        Toast.makeText(this, "Test started: collecting data for 15 sec", Toast.LENGTH_SHORT).show();
-        new CountDownTimer(15000, 1000) {
-            public void onTick(long millisUntilFinished) { }
+        Toast.makeText(this, "Test started: collecting data for " + durationSeconds + " sec", Toast.LENGTH_SHORT).show();
+
+        // Convert to milliseconds
+        long durationMillis = durationSeconds * 1000L;
+
+        new CountDownTimer(durationMillis, 1000) {
+            public void onTick(long millisUntilFinished) {
+                // Optionally update UI with remaining time
+            }
             public void onFinish() {
                 isTestModeActive = false;
                 Toast.makeText(DeviceControlActivity.this, "Test finished", Toast.LENGTH_SHORT).show();
@@ -218,6 +220,29 @@ public class DeviceControlActivity extends AppCompatActivity {
             }
         }.start();
     }
+
+    private void promptTestDuration() {
+        // Create an EditText for user input
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER); // numeric input
+
+        new AlertDialog.Builder(this)
+                .setTitle("Test Duration")
+                .setMessage("Enter the number of seconds for the test:")
+                .setView(input)
+                .setPositiveButton("Start", (dialog, which) -> {
+                    String userInput = input.getText().toString().trim();
+                    if (!userInput.isEmpty()) {
+                        int seconds = Integer.parseInt(userInput);
+                        startDataTest(seconds);
+                    } else {
+                        Toast.makeText(DeviceControlActivity.this, "No input. Test canceled.", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
 
     // Displays a dialog to choose which sensor data to plot.
     private void showPlotOptions() {
@@ -319,7 +344,7 @@ public class DeviceControlActivity extends AppCompatActivity {
 
             case R.id.menu_test:
                 // This calls the same logic you had for the "Test" button
-                startDataTest();
+                promptTestDuration();
                 return true;
 
             case android.R.id.home:
