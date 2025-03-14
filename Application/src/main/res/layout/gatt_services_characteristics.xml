@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
     android:orientation="vertical"
-    android:background="@color/backgroundLight">
-
+    android:background="@drawable/background_gradient">
 
     <!-- ExpandableListView for GATT Services and Characteristics -->
     <ExpandableListView
@@ -16,7 +16,6 @@
         android:dividerHeight="1dp"
         android:padding="8dp" />
 
-
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switch_notifications"
         android:layout_width="wrap_content"
@@ -26,53 +25,25 @@
         android:layout_margin="16dp"
         android:textSize="16sp" />
 
-
-    <!-- On/Off buttons
+    <!-- Buttons at the bottom -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_marginTop="16dp"
-        android:orientation="horizontal">
+        android:gravity="center">
 
         <Button
-            android:id="@+id/button_on"
-            style="@style/CustomButton"
-            android:layout_width="0dp"
+            android:id="@+id/button_disconnect"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="On" />
-
-        <Button
-            android:id="@+id/button_off"
-            style="@style/CustomButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Off" />
-    </LinearLayout> -->
-
-    <!-- Test and Import CSV buttons
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal">
+            android:text="Disconnect"
+            android:layout_marginRight="16dp" />
 
         <Button
             android:id="@+id/button_test"
-            style="@style/CustomButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Test" />
-
-        <Button
-            android:id="@+id/button_import_csv"
-            style="@style/CustomButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Import CSV" />
-    </LinearLayout> -->
-
+    </LinearLayout>
 </LinearLayout>

@@ -18,13 +18,17 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.switchmaterial.SwitchMaterial;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,12 +38,11 @@ import java.util.Set;
 import java.util.UUID;
 
 public class DeviceControlActivity extends AppCompatActivity {
-    private final static String TAG = DeviceControlActivity.class.getSimpleName();
+    private static final String TAG = DeviceControlActivity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
-    private TextView mConnectionState;
     private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
@@ -48,13 +51,12 @@ public class DeviceControlActivity extends AppCompatActivity {
     private boolean mConnected = false;
 
     // UUIDs of interest
-    public final static UUID UUID_TEMPERATURE = UUID.fromString(SampleGattAttributes.TEMPERATURE);
-    public final static UUID UUID_HUMIDITY = UUID.fromString(SampleGattAttributes.HUMIDITY);
-    public final static UUID UUID_PRESSURE = UUID.fromString(SampleGattAttributes.PRESSURE);
-    public final static UUID UUID_CO = UUID.fromString(SampleGattAttributes.CO);
+    public static final UUID UUID_TEMPERATURE = UUID.fromString(SampleGattAttributes.TEMPERATURE);
+    public static final UUID UUID_HUMIDITY = UUID.fromString(SampleGattAttributes.HUMIDITY);
+    public static final UUID UUID_PRESSURE = UUID.fromString(SampleGattAttributes.PRESSURE);
+    public static final UUID UUID_CO = UUID.fromString(SampleGattAttributes.CO);
 
     private boolean isTestModeActive = false;
-
 
     // DataPoint class for test data (public static so PlotActivity can access it)
     public static class DataPoint implements java.io.Serializable {
@@ -67,13 +69,13 @@ public class DeviceControlActivity extends AppCompatActivity {
     }
 
     // Data lists for sensors
-    private ArrayList<DataPoint> coDataList = new ArrayList<>();
-    private ArrayList<DataPoint> temperatureDataList = new ArrayList<>();
-    private ArrayList<DataPoint> humidityDataList = new ArrayList<>();
-    private ArrayList<DataPoint> pressureDataList = new ArrayList<>();
+    private final ArrayList<DataPoint> coDataList = new ArrayList<>();
+    private final ArrayList<DataPoint> temperatureDataList = new ArrayList<>();
+    private final ArrayList<DataPoint> humidityDataList = new ArrayList<>();
+    private final ArrayList<DataPoint> pressureDataList = new ArrayList<>();
 
-    private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
+    private static final String LIST_NAME = "NAME";
+    private static final String LIST_UUID = "UUID";
 
     // Service connection with extra logging.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -109,11 +111,9 @@ public class DeviceControlActivity extends AppCompatActivity {
             Log.d(TAG, "Broadcast received: " + action);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
-                updateConnectionState(R.string.connected);
                 Toast.makeText(DeviceControlActivity.this, "Connected to device", Toast.LENGTH_SHORT).show();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
-                updateConnectionState(R.string.disconnected);
                 clearUI();
                 Toast.makeText(DeviceControlActivity.this, "Disconnected from device", Toast.LENGTH_SHORT).show();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
@@ -124,7 +124,7 @@ public class DeviceControlActivity extends AppCompatActivity {
                 String dataValue = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 updateCharacteristicValue(dataType, dataValue);
 
-                // Record raw value if test mode is active.
+                // Record raw value if test mode is active
                 if (isTestModeActive) {
                     float rawValue = intent.getFloatExtra(BluetoothLeService.EXTRA_RAW_VALUE, Float.NaN);
                     long timestamp = System.currentTimeMillis();
@@ -143,10 +143,13 @@ public class DeviceControlActivity extends AppCompatActivity {
     };
 
     private void updateCharacteristicValue(String dataType, String dataValue) {
+        if (mGattServicesList.getExpandableListAdapter() == null) return;
+
         for (int i = 0; i < mGattCharacteristics.size(); i++) {
             ArrayList<BluetoothGattCharacteristic> charas = mGattCharacteristics.get(i);
             for (BluetoothGattCharacteristic characteristic : charas) {
                 if (characteristic.getUuid().toString().equals(dataType)) {
+                    // Update the child item in the ExpandableListView
                     HashMap<String, String> childItem = (HashMap<String, String>)
                             ((SimpleExpandableListAdapter) mGattServicesList.getExpandableListAdapter())
                                     .getChild(i, charas.indexOf(characteristic));
@@ -169,12 +172,28 @@ public class DeviceControlActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gatt_services_characteristics);
 
-
-
-        // Existing On/Off buttons.
+        // Switch for notifications
         SwitchMaterial switchNotifications = findViewById(R.id.switch_notifications);
         switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
             enableNotifications(isChecked);
+        });
+
+        // Disconnect button at bottom
+        Button disconnectButton = findViewById(R.id.button_disconnect);
+        disconnectButton.setOnClickListener(v -> {
+            // Disconnect from device
+            if (mBluetoothLeService != null) {
+                mBluetoothLeService.disconnect();
+            }
+            // Return to homepage
+            finish();
+        });
+
+        // Test button
+        Button testButton = findViewById(R.id.button_test);
+        testButton.setOnClickListener(v -> {
+            // Launch the test dialog
+            promptTestDuration();
         });
 
         Intent intent = getIntent();
@@ -183,18 +202,17 @@ public class DeviceControlActivity extends AppCompatActivity {
 
         mGattServicesList = findViewById(R.id.gatt_services_list);
 
-        if(getSupportActionBar() != null) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(mDeviceName);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         } else {
             Log.w(TAG, "getSupportActionBar() returned null");
         }
 
-        // Bind to the BluetoothLeService.
+        // Bind to the BluetoothLeService
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
-
 
     private void startDataTest(int durationSeconds) {
         // Clear previous test data
@@ -222,9 +240,8 @@ public class DeviceControlActivity extends AppCompatActivity {
     }
 
     private void promptTestDuration() {
-        // Create an EditText for user input
         final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER); // numeric input
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         new AlertDialog.Builder(this)
                 .setTitle("Test Duration")
@@ -243,43 +260,36 @@ public class DeviceControlActivity extends AppCompatActivity {
                 .show();
     }
 
-
-    // Displays a dialog to choose which sensor data to plot.
+    // Displays a dialog to choose which sensor data to plot
     private void showPlotOptions() {
         String[] options = {"Plot All", "Plot Temperature", "Plot Humidity", "Plot Pressure", "Plot CO"};
         new AlertDialog.Builder(this)
                 .setTitle("Select Data to Plot")
-                .setItems(options, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(DeviceControlActivity.this, PlotActivity.class);
-                        intent.putExtra("plot_option", which);
-                        if (which == 0) {
-                            intent.putExtra("temperatureData", temperatureDataList);
-                            intent.putExtra("humidityData", humidityDataList);
-                            intent.putExtra("pressureData", pressureDataList);
-                            intent.putExtra("coData", coDataList);
-                        } else if (which == 1) {
-                            intent.putExtra("temperatureData", temperatureDataList);
-                        } else if (which == 2) {
-                            intent.putExtra("humidityData", humidityDataList);
-                        } else if (which == 3) {
-                            intent.putExtra("pressureData", pressureDataList);
-                        } else if (which == 4) {
-                            intent.putExtra("coData", coDataList);
-                        }
-                        startActivity(intent);
+                .setItems(options, (dialog, which) -> {
+                    Intent intent = new Intent(DeviceControlActivity.this, PlotActivity.class);
+                    intent.putExtra("plot_option", which);
+                    if (which == 0) {
+                        intent.putExtra("temperatureData", temperatureDataList);
+                        intent.putExtra("humidityData", humidityDataList);
+                        intent.putExtra("pressureData", pressureDataList);
+                        intent.putExtra("coData", coDataList);
+                    } else if (which == 1) {
+                        intent.putExtra("temperatureData", temperatureDataList);
+                    } else if (which == 2) {
+                        intent.putExtra("humidityData", humidityDataList);
+                    } else if (which == 3) {
+                        intent.putExtra("pressureData", pressureDataList);
+                    } else if (which == 4) {
+                        intent.putExtra("coData", coDataList);
                     }
+                    startActivity(intent);
                 })
                 .show();
     }
 
-    // Enables notifications with a slight delay between each.
     private void enableNotificationWithDelay(final BluetoothGattCharacteristic characteristic, final boolean enabled, int delay) {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mBluetoothLeService.setCharacteristicNotification(characteristic, enabled);
-            }
+        new Handler().postDelayed(() -> {
+            mBluetoothLeService.setCharacteristicNotification(characteristic, enabled);
         }, delay);
     }
 
@@ -323,30 +333,10 @@ public class DeviceControlActivity extends AppCompatActivity {
         mBluetoothLeService = null;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.gatt_services, menu);
-        // Always show "Disconnect" in the menu
-        menu.findItem(R.id.menu_disconnect).setVisible(true);
-        return true;
-    }
-
 
     @Override
-
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case R.id.menu_disconnect:
-                if (mBluetoothLeService != null) {
-                    mBluetoothLeService.disconnect();
-                }
-                return true;
-
-            case R.id.menu_test:
-                // This calls the same logic you had for the "Test" button
-                promptTestDuration();
-                return true;
-
             case android.R.id.home:
                 onBackPressed();
                 return true;
@@ -354,24 +344,20 @@ public class DeviceControlActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    private void updateConnectionState(final int resourceId) {
-
-    }
-
-    // Displays discovered GATT services and their characteristics.
+    // Displays discovered GATT services and their characteristics
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
         String unknownServiceString = getResources().getString(R.string.unknown_service);
         String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
+
+        mGattCharacteristics = new ArrayList<>();
         ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<>();
         ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData = new ArrayList<>();
-        mGattCharacteristics = new ArrayList<>();
 
         Set<String> relevantUuids = new HashSet<>(Arrays.asList(
                 "00002a6e-0000-1000-8000-00805f9b34fb", // Temperature
                 "00002a6f-0000-1000-8000-00805f9b34fb", // Humidity
-                "00002bd0-0000-1000-8000-00805f9b34fb", // CO concentration
+                "00002bd0-0000-1000-8000-00805f9b34fb", // CO
                 "00002a6d-0000-1000-8000-00805f9b34fb"  // Pressure
         ));
 
@@ -385,10 +371,12 @@ public class DeviceControlActivity extends AppCompatActivity {
 
                 ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ArrayList<>();
                 ArrayList<BluetoothGattCharacteristic> charas = new ArrayList<>();
+
                 for (BluetoothGattCharacteristic gattCharacteristic : gattService.getCharacteristics()) {
                     uuid = gattCharacteristic.getUuid().toString();
                     if (relevantUuids.contains(uuid)) {
                         charas.add(gattCharacteristic);
+
                         HashMap<String, String> currentCharaData = new HashMap<>();
                         currentCharaData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
                         currentCharaData.put(LIST_UUID, uuid);

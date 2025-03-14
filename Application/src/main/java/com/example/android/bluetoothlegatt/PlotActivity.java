@@ -67,12 +67,12 @@ public class PlotActivity extends AppCompatActivity {
             // Plot All
             LineDataSet tempSet = createDataSet(mTempData, "Temperature", Color.RED);
             LineDataSet humSet = createDataSet(mHumData, "Humidity", Color.BLUE);
-            LineDataSet presSet = createDataSet(mPresData, "Pressure", Color.GREEN);
+            //LineDataSet presSet = createDataSet(mPresData, "Pressure", Color.GREEN);
             LineDataSet coSet = createDataSet(mCoData, "CO", Color.MAGENTA);
 
             if (tempSet != null) lineData.addDataSet(tempSet);
             if (humSet != null) lineData.addDataSet(humSet);
-            if (presSet != null) lineData.addDataSet(presSet);
+            //if (presSet != null) lineData.addDataSet(presSet);
             if (coSet != null) lineData.addDataSet(coSet);
 
         } else if (plotOption == 1) {

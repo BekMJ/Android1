@@ -14,5 +14,4 @@
         android:orderInCategory="102"
         android:showAsAction="ifRoom|withText"
         tools:ignore="AppCompatResource" />
-
 </menu>

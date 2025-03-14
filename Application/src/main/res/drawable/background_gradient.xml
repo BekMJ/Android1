@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- This creates a diagonal gradient from top-left to bottom-right (angle=45).
+         If you want bottom-left to top-right, try angle=315. -->
+    <gradient
+        android:startColor="@color/purple_300"
+        android:endColor="@color/blue_400"
+        android:angle="90" />
+
+    <!-- Optionally, define corners or other shape attributes here. -->
+</shape>

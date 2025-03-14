@@ -5,36 +5,34 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundLight">
+    android:background="@drawable/background_gradient"
+    android:padding="16dp">
 
-    <!-- MaterialToolbar for a modern ActionBar -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:title="Scan for Devices"
-        app:titleCentered="true"
-        android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar" />
+    <!-- TextView to display scanning status -->
+    <TextView
+        android:id="@+id/scan_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Not Scanning"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
 
-    <!-- ListView (or RecyclerView) for displaying devices -->
+    <!-- Button to start/stop scanning -->
+    <Button
+        android:id="@+id/button_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Scan"
+        android:layout_marginBottom="16dp" />
+
+    <!-- ListView for displaying BLE devices -->
     <ListView
         android:id="@+id/device_listview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:divider="@android:color/transparent"
         android:dividerHeight="8dp"
         android:padding="8dp" />
-
-    <!-- A floating action button for scanning -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:contentDescription="Start or stop scanning"
-        app:srcCompat="@drawable/ic_launcher" />
 
 </LinearLayout>
