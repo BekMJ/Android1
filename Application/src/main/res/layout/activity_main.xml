@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
+    android:fitsSystemWindows="true">
+
+    <!-- Main content container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="16dp">
+
+        <!-- Toolbar for the hamburger icon -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/blue_500"
+            android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
+            app:title="XHale"
+            app:titleTextColor="@android:color/white" />
+
+        <!-- TextView to display scanning status -->
+        <TextView
+            style="@style/BodyText"
+            android:id="@+id/scan_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Not Scanning"
+            android:textSize="18sp"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Button to start/stop scanning -->
+        <Button
+            style="@style/CustomButton"
+            android:id="@+id/button_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Start Scan" />
+
+        <!-- ListView for displaying BLE devices -->
+        <ListView
+            android:id="@+id/device_listview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:dividerHeight="8dp"
+            android:padding="8dp" />
+
+
+    </LinearLayout>
+
+    <!-- NavigationView for the side menu -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@drawable/background_gradient1"
+        android:fitsSystemWindows="true"
+        app:itemTextColor="@color/colorTitle"
+        app:menu="@menu/drawer_menu" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

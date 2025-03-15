@@ -26,7 +26,7 @@
     <!-- Consider updating to a modern theme such as Theme.AppCompat.Light -->
 
     <activity
-        android:name=".DeviceScanActivity"
+        android:name=".MainActivity"
         android:exported="true"
         android:label="@string/app_name">
         <intent-filter>

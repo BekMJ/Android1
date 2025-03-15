@@ -1,0 +1,4 @@
+#Sat Mar 15 15:15:42 CDT 2025
+base.0=C\:\\Users\\askub\\COSENSOR\\Android1\\Application\\build\\intermediates\\dex\\debugAndroidTest\\mergeProjectDexDebugAndroidTest\\0\\classes.dex
+path.0=0/classes.dex
+renamed.0=classes.dex
