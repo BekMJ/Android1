@@ -34,10 +34,12 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
     </activity>
-
-    <activity android:name=".DeviceControlActivity"/>
+        <activity android:name=".DeviceControlActivity"/>
+        <activity android:name=".SettingsActivity"/>
+    <activity android:name=".InstructionActivity"/>
     <activity android:name=".PlotActivity"/>
     <service android:name=".BluetoothLeService" android:enabled="true"/>
+  \
 </application>
 
     </manifest>

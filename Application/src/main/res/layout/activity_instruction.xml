@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Title -->
+
+        <!-- Device image -->
+
+        <!-- Instructions block -->
+        <TextView
+            android:id="@+id/instruction_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="How to Use the Device"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/instruction_image"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Device image"
+            android:scaleType="fitCenter"
+            android:src="@drawable/device" />
+
+        <TextView
+            android:id="@+id/instruction_text"
+            android:layout_width="match_parent"
+            android:layout_height="331dp"
+            android:layout_marginBottom="16dp"
+            android:alpha="0.4"
+            android:background="@android:color/black"
+            android:padding="16dp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</ScrollView>

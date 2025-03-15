@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -124,6 +126,17 @@ public class DeviceScanActivity extends AppCompatActivity {
                 stopScan();
             }
         });
+
+        Button instructionsBtn = findViewById(R.id.button_instructions);
+        instructionsBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, InstructionActivity.class));
+        });
+        Button settingsButton = findViewById(R.id.button_settings);
+        settingsButton.setOnClickListener(v -> {
+            startActivity(new Intent(this, SettingsActivity.class));
+        });
+
+
     }
 
     @Override
@@ -215,6 +228,8 @@ public class DeviceScanActivity extends AppCompatActivity {
         mScanButton.setText("Start Scan");
         Log.i(TAG, "BLE scan stopped.");
     }
+
+
 
     // BLE scan callback
     private final BluetoothAdapter.LeScanCallback mLeScanCallback = (device, rssi, scanRecord) ->
