@@ -272,9 +272,9 @@ public class MainActivity extends AppCompatActivity
         public void addDevice(BluetoothDevice device) {
             String deviceName = device.getName();
             Log.d(TAG, "Discovered device: " + deviceName);
-            // Filter for device names that start with "Univ. Okla"
+            // Filter for device names that start with "XHale"
             if (deviceName != null
-                    && deviceName.startsWith("Univ. Okla")
+                    && deviceName.startsWith("XHale")
                     && !mLeDevices.contains(device)) {
                 mLeDevices.add(device);
             }

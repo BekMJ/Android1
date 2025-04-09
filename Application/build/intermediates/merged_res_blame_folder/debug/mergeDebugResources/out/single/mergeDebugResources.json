@@ -4,12 +4,12 @@
         "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-38:\\layout\\child_item.xml"
     },
     {
-        "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-35:\\layout_listitem_device.xml.flat",
-        "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-38:\\layout\\listitem_device.xml"
-    },
-    {
         "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-35:\\drawable_device.png.flat",
         "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-38:\\drawable\\device.png"
+    },
+    {
+        "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-35:\\layout_listitem_device.xml.flat",
+        "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-38:\\layout\\listitem_device.xml"
     },
     {
         "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-35:\\drawable_ic_info.xml.flat",
@@ -60,6 +60,10 @@
         "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-38:\\layout\\group_item.xml"
     },
     {
+        "merged": "com.example.android.bluetoothlegatt.Application-debug-35:/anim_rotate.xml.flat",
+        "source": "com.example.android.bluetoothlegatt.Application-main-38:/anim/rotate.xml"
+    },
+    {
         "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-35:\\drawable-xhdpi_ic_launcher.png.flat",
         "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-38:\\drawable-xhdpi\\ic_launcher.png"
     },
@@ -82,10 +86,6 @@
     {
         "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-35:\\layout_activity_plot.xml.flat",
         "source": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-main-38:\\layout\\activity_plot.xml"
-    },
-    {
-        "merged": "com.example.android.bluetoothlegatt.Application-debug-35:/layout_activity_main.xml.flat",
-        "source": "com.example.android.bluetoothlegatt.Application-main-38:/layout/activity_main.xml"
     },
     {
         "merged": "C:\\Users\\askub\\.gradle\\daemon\\8.7\\com.example.android.bluetoothlegatt.Application-debug-35:\\drawable-hdpi_tile.9.png.flat",
